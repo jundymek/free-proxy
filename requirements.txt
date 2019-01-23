@@ -1,0 +1,4 @@
+coverage==4.5.2
+lxml==4.3.0
+pip-chill==0.1.8
+requests==2.21.0

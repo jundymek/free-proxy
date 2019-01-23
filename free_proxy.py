@@ -12,7 +12,12 @@ class FreeProxy:
         page = requests.get('https://www.sslproxies.org')
         doc = lh.fromstring(page.content)
         tr_elements = doc.xpath('//*[@id="proxylisttable"]//tr')
-        proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in range(1, 101)]
+        if not self.country_id:
+            proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in range(1, 101)]
+        else:
+            proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in range(1, 101)
+                       if tr_elements[i][2].text_content() == self.country_id]
+        print(proxies)
         return proxies
 
     def get_first_working_proxy(self):
@@ -23,21 +28,25 @@ class FreeProxy:
             for i in range(len(proxy_list)):
                 proxies = {
                     'http': proxy_list[i],
-                    'https': proxy_list[i]
                 }
                 try:
                     response = requests.get('http://www.google.com', proxies=proxies, timeout=self.timeout)
                     print(i, response)
-                    if response.status_code == 200:
-                        working_proxy = proxy_list[i]
-                        break
-                except:
+                    working_proxy = proxy_list[i]
+                    break
+                except requests.exceptions.RequestException as e:
+                    print(e)
                     print(f'{i}: failed')
                     continue
+
             break
-        print(working_proxy)
+        if working_proxy:
+            print(working_proxy)
+        else:
+            if self.country_id:
+                print(f'There are no working proxies for country with id: {self.country_id}')
 
 
 if __name__ == '__main__':
-    main = FreeProxy()
+    main = FreeProxy(country_id='US')
     main.get_first_working_proxy()
