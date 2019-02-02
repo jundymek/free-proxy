@@ -1,7 +1,8 @@
-import sys
-import requests
 import random
+import sys
+
 import lxml.html as lh
+import requests
 
 
 class FreeProxy:
@@ -17,9 +18,11 @@ class FreeProxy:
             doc = lh.fromstring(page.content)
             tr_elements = doc.xpath('//*[@id="proxylisttable"]//tr')
             if not self.country_id:
-                proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in range(1, 101)]
+                proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in
+                           range(1, 101)]
             else:
-                proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in range(1, 101)
+                proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in
+                           range(1, 101)
                            if tr_elements[i][2].text_content() == self.country_id]
             return proxies
         except requests.exceptions.RequestException as e:
@@ -38,26 +41,27 @@ class FreeProxy:
                     'http': proxy_list[i],
                 }
                 try:
-                    response = requests.get('http://www.google.com', proxies=proxies, timeout=self.timeout)
-                    print(i, response)
-                    if response.status_code == 200:
-                        working_proxy = proxy_list[i]
+                    if self.check_if_proxy_is_working(proxies):
+                        working_proxy = self.check_if_proxy_is_working(proxies)
                         break
                 except requests.exceptions.RequestException:
-                    print(f'{i}: failed')
+                    # print(f'{i}: failed')
                     continue
             break
-        if working_proxy:
-            print(working_proxy)
-        else:
+        if not working_proxy:
             if self.country_id is not None:
                 self.country_id = None
                 return self.get()
             else:
                 print('There are no working proxies at this time.')
-                sys.exit(1)
+                return None
         return working_proxy
+
+    def check_if_proxy_is_working(self, proxies):
+        with requests.get('http://www.google.com', proxies=proxies, timeout=self.timeout, stream=True) as r:
+            if r.raw._connection.sock.getpeername()[0] == proxies['http'].split(':')[0]:
+                return proxies['http']
 
 
 if __name__ == '__main__':
-    main = FreeProxy(country_id='PL').get()
+    main = FreeProxy(timeout=0.5).get()
