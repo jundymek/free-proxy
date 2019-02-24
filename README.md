@@ -21,13 +21,20 @@ Returns proxy as string:
 * Request library  
   
 * Lxml library  
+
+### Installation
+
+```
+pip instal free-proxy
+```
+[![asciicast](https://asciinema.org/a/Xolpn3eD2tyJl8Y8HE9zolgex.svg)](https://asciinema.org/a/Xolpn3eD2tyJl8Y8HE9zolgex)
   
 ### Usage with examples  
 
 
 Parameter | Type| Example | Default value
 --- | --- | --- | --- 
-country_id | str | 'US' | None
+country_id | list | ['US', 'BR'] | None
 timeout | float > 0 |0.1 | 0.5
 rand | bool | True | False
 
@@ -38,9 +45,9 @@ Get first working proxy from 100 proxies from https://www.sslproxies.org/
 proxy = FreeProxy().get()  
 ```  
 * **`country_id` parameter**   
-Get first working proxy from specified country. If there is no valid proxy from specified country check all countries  
+Get first working proxy from specified list of countries. If there is no valid proxy from specified list check all countries  
 ```  
-proxy = FreeProxy(country_id='US').get()  
+proxy = FreeProxy(country_id=['US', 'BR']).get()  
 ```  
 * **`timeout` parameter**   
 Timeout is parameter for checking if proxy is valid. If test site doesn't respond in specified time  
@@ -59,7 +66,7 @@ to oldest (as they are listed in https://www.sslproxies.org/).
   
 You can combine parameters:  
 ```  
-proxy = FreeProxy(country_id='US', timeout=0.3, rand=True).get()  
+proxy = FreeProxy(country_id=['US', 'BR'], timeout=0.3, rand=True).get()  
 ```  
   
 If there is no working proxy script returns `None`  

@@ -7,10 +7,11 @@ import requests
 
 class FreeProxy:
 
-    def __init__(self, country_id=None, timeout=0.5, rand=False):
+    def __init__(self, country_id=[], timeout=0.5, rand=False):
         self.country_id = country_id
         self.timeout = timeout
         self.random = rand
+        print(self.country_id)
 
     def get_proxy_list(self):
         try:
@@ -23,7 +24,7 @@ class FreeProxy:
             else:
                 proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in
                            range(1, 101)
-                           if tr_elements[i][2].text_content() == self.country_id]
+                           if tr_elements[i][2].text_content() in self.country_id]
             return proxies
         except requests.exceptions.RequestException as e:
             print(e)
@@ -31,6 +32,7 @@ class FreeProxy:
 
     def get(self):
         proxy_list = self.get_proxy_list()
+        print(proxy_list)
         if self.random:
             random.shuffle(proxy_list)
             proxy_list = proxy_list
@@ -45,7 +47,6 @@ class FreeProxy:
                         working_proxy = self.check_if_proxy_is_working(proxies)
                         break
                 except requests.exceptions.RequestException:
-                    # print(f'{i}: failed')
                     continue
             break
         if not working_proxy:
