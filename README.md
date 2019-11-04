@@ -47,7 +47,7 @@ Timeout is parameter for checking if proxy is valid. If test site doesn't respon
 script marks this proxy as invalid. Default ```timeout=0.5```. You can change it by defining  
 specified timeout eg. ```timeout=1```.  
 ```  
-proxy = FreeProxt(timeut=1).get()  
+proxy = FreeProxy(timeut=1).get()  
 ```  
 * **`rand` parameter** 
 ```
