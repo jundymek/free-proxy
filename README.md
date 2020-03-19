@@ -25,12 +25,18 @@ Returns proxy as string:
 ### Installation
 
 ```
-pip instal free-proxy
+pip install free-proxy
 ```
 [![asciicast](https://asciinema.org/a/Xolpn3eD2tyJl8Y8HE9zolgex.svg)](https://asciinema.org/a/Xolpn3eD2tyJl8Y8HE9zolgex)
   
 ### Usage with examples  
 
+First import Free Proxy that way:
+```python
+from fp.fp import FreeProxy
+```
+
+## Options
 
 Parameter | Type| Example | Default value
 --- | --- | --- | --- 
@@ -54,7 +60,7 @@ Timeout is parameter for checking if proxy is valid. If test site doesn't respon
 script marks this proxy as invalid. Default ```timeout=0.5```. You can change it by defining  
 specified timeout eg. ```timeout=1```.  
 ```  
-proxy = FreeProxt(timeut=1).get()  
+proxy = FreeProxt(timeout=1).get()  
 ```  
 * **`rand` parameter** 
 ```
@@ -71,7 +77,12 @@ proxy = FreeProxy(country_id=['US', 'BR'], timeout=0.3, rand=True).get()
   
 If there is no working proxy script returns `None`  
 
-  
+#Changelog
+## [1.0.1] - 2020-03-19
+### Changed
+- Fix typos in readme
+- Fix urrlib3 exception `urllib3.exceptions.ProxySchemeUnknown: Not supported proxy scheme None`,
+- Fix imports
   
 License  
 ----  

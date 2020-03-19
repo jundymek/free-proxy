@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import random
 import sys
 
@@ -11,7 +13,6 @@ class FreeProxy:
         self.country_id = country_id
         self.timeout = timeout
         self.random = rand
-        print(self.country_id)
 
     def get_proxy_list(self):
         try:
@@ -32,7 +33,6 @@ class FreeProxy:
 
     def get(self):
         proxy_list = self.get_proxy_list()
-        print(proxy_list)
         if self.random:
             random.shuffle(proxy_list)
             proxy_list = proxy_list
@@ -40,12 +40,12 @@ class FreeProxy:
         while True:
             for i in range(len(proxy_list)):
                 proxies = {
-                    'http': proxy_list[i],
+                    'http': "http://" + proxy_list[i],
                 }
                 try:
                     if self.check_if_proxy_is_working(proxies):
                         working_proxy = self.check_if_proxy_is_working(proxies)
-                        break
+                        return working_proxy
                 except requests.exceptions.RequestException:
                     continue
             break
@@ -54,15 +54,11 @@ class FreeProxy:
                 self.country_id = None
                 return self.get()
             else:
-                print('There are no working proxies at this time.')
-                return None
-        return working_proxy
+                return 'There are no working proxies at this time.'
 
     def check_if_proxy_is_working(self, proxies):
         with requests.get('http://www.google.com', proxies=proxies, timeout=self.timeout, stream=True) as r:
-            if r.raw._connection.sock.getpeername()[0] == proxies['http'].split(':')[0]:
-                return proxies['http']
+            if r.raw.connection.sock:
+                if r.raw.connection.sock.getpeername()[0] == proxies['http'].split(':')[1][2:]:
+                    return proxies['http']
 
-
-if __name__ == '__main__':
-    main = FreeProxy(timeout=0.5).get()
