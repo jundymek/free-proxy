@@ -11,7 +11,7 @@ You can use it in sending request through custom proxy, with selenium or whereve
   
 Returns proxy as string:  
 ```  
-'113.160.218.14:8888'  
+'http://113.160.218.14:8888'  
 ```  
   
 ### Requirements  
@@ -59,6 +59,7 @@ proxy = FreeProxy(country_id=['US', 'BR']).get()
 Timeout is parameter for checking if proxy is valid. If test site doesn't respond in specified time  
 script marks this proxy as invalid. Default ```timeout=0.5```. You can change it by defining  
 specified timeout eg. ```timeout=1```.  
+
 ```  
 proxy = FreeProxt(timeout=1).get()  
 ```  
