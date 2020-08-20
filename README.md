@@ -63,14 +63,20 @@ specified timeout eg. ```timeout=1```.
 ```  
 proxy = FreeProxt(timeout=1).get()  
 ```  
-* **`rand` parameter** 
+* **`rand` parameter**  
+Shuffles proxy list from https://www.sslproxies.org/. Default `rand=False` and searches for working proxy from newest 
+to oldest (as they are listed in https://www.sslproxies.org/).
 ```
 proxy = FreeProxy(rand=True).get()  
 ```  
-  
-Shuffles proxy list from https://www.sslproxies.org/. Default `rand=False` and searches for working proxy from newest 
-to oldest (as they are listed in https://www.sslproxies.org/).
-  
+
+
+* **`anonym` parameter**  
+Return only those proxies are marked as anonymous. Defaults to `anonym=False`
+```
+proxy = FreeProxy(anonym=True).get()  
+```  
+
 You can combine parameters:  
 ```  
 proxy = FreeProxy(country_id=['US', 'BR'], timeout=0.3, rand=True).get()  
