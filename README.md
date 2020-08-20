@@ -72,7 +72,7 @@ proxy = FreeProxy(rand=True).get()
 
 
 * **`anonym` parameter**  
-Return only those proxies are marked as anonymous. Defaults to `anonym=False`
+Return only those proxies that are marked as anonymous. Defaults to `anonym=False`
 ```
 proxy = FreeProxy(anonym=True).get()  
 ```  
