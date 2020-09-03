@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name='free_proxy',
-    version='1.0.1',
+    version='1.0.2',
     author="jundymek",
     author_email="jundymek@gmail.com",
     description="Proxy scraper for further use",
