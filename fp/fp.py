@@ -55,7 +55,7 @@ class FreeProxy:
                 self.country_id = None
                 return self.get()
             else:
-                return 'There are no working proxies at this time.'
+                raise RuntimeError('There are no working proxies at this time.')
 
     def check_if_proxy_is_working(self, proxies):
         with requests.get('http://www.google.com', proxies=proxies, timeout=self.timeout, stream=True) as r:
