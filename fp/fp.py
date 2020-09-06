@@ -40,18 +40,16 @@ class FreeProxy:
             random.shuffle(proxy_list)
             proxy_list = proxy_list
         working_proxy = None
-        while True:
-            for i in range(len(proxy_list)):
-                proxies = {
-                    'http': "http://" + proxy_list[i],
-                }
-                try:
-                    if self.check_if_proxy_is_working(proxies):
-                        working_proxy = self.check_if_proxy_is_working(proxies)
-                        return working_proxy
-                except requests.exceptions.RequestException:
-                    continue
-            break
+        for i in range(len(proxy_list)):
+            proxies = {
+                'http': "http://" + proxy_list[i],
+            }
+            try:
+                if self.check_if_proxy_is_working(proxies):
+                    working_proxy = self.check_if_proxy_is_working(proxies)
+                    return working_proxy
+            except requests.exceptions.RequestException:
+                continue
         if not working_proxy:
             if self.country_id is not None:
                 self.country_id = None
