@@ -9,8 +9,8 @@ import requests
 
 class FreeProxy:
 
-    def __init__(self, country_id=[], timeout=0.5, rand=False, anonym=False):
-        self.country_id = country_id
+    def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False):
+        self.country_id = [] if country_id is None else country_id
         self.timeout = timeout
         self.random = rand
         self.anonym = anonym
