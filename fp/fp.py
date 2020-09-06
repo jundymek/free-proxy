@@ -34,7 +34,7 @@ class FreeProxy:
             print(e)
             sys.exit(1)
 
-    def get(self):
+    def get(self, any_country_on_failure=True):
         proxy_list = self.get_proxy_list()
         if self.random:
             random.shuffle(proxy_list)
@@ -51,7 +51,7 @@ class FreeProxy:
             except requests.exceptions.RequestException:
                 continue
         if not working_proxy:
-            if self.country_id is not None:
+            if any_country_on_failure and self.country_id is not None:
                 self.country_id = None
                 return self.get()
             else:
