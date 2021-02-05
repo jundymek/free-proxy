@@ -64,7 +64,7 @@ proxy = FreeProxy(country_id=['US', 'BR']).get()
   specified timeout eg. `timeout=1`.
 
 ```python
-proxy = FreeProxt(timeout=1).get()
+proxy = FreeProxy(timeout=1).get()
 ```
 
 - **`rand` parameter**  
