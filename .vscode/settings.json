@@ -1,0 +1,6 @@
+{
+  "python.pythonPath": "/Users/jundymek/.virtualenvs/free-proxy/bin/python",
+  "python.linting.pycodestyleEnabled": false,
+  "python.linting.pylintEnabled": true,
+  "python.linting.enabled": true
+}

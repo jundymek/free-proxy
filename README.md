@@ -93,7 +93,10 @@ If there is no working proxy script returns `None`
 ## CHANGELOG
 
 ---
+## [1.0.3] - 2021-08-18
 
+- Change XPatch due to SSL proxies page update
+- Change lxml version
 ## [1.0.2] - 2020-09-03
 
 - Added `anonym` parameter
