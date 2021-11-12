@@ -22,11 +22,11 @@ class FreeProxy:
             tr_elements = doc.xpath('//*[@id="list"]//tr')
             if not self.country_id:
                 proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in
-                           range(1, 101)
+                           range(1, len(tr_elements))
                            if((tr_elements[i][4].text_content()) == 'anonymous' if self.anonym else True)]  # check the 5th column for `anonymous` if needed
             else:
                 proxies = [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}' for i in
-                           range(1, 101)
+                           range(1, len(tr_elements))
                            if tr_elements[i][2].text_content() in self.country_id
                            and ((tr_elements[i][4].text_content()) == 'anonymous' if self.anonym else True)]  # check the 5th column for `anonymous` if needed
             return proxies
