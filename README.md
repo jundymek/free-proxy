@@ -45,7 +45,7 @@ from fp.fp import FreeProxy
 | rand       | bool      | True         | False         |
 
 - **No parameters**  
-  Get first working proxy from 100 proxies from <https://www.sslproxies.org/>
+  Get first working proxy from <https://www.sslproxies.org/>
 
 ```python
 proxy = FreeProxy().get()
@@ -88,15 +88,21 @@ You can combine parameters:
 proxy = FreeProxy(country_id=['US', 'BR'], timeout=0.3, rand=True).get()
 ```
 
-If there is no working proxy script returns `None`
+If there is no working proxy script returns `There are no working proxies at this time.` message.
 
 ## CHANGELOG
 
 ---
+
+## [1.0.4] - 2021-11-13
+
+- Fix proxy list default length
+
 ## [1.0.3] - 2021-08-18
 
 - Change XPatch due to SSL proxies page update
 - Change lxml version
+
 ## [1.0.2] - 2020-09-03
 
 - Added `anonym` parameter

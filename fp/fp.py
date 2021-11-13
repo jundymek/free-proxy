@@ -9,7 +9,7 @@ import requests
 
 class FreeProxy:
 
-    def __init__(self, country_id=[], timeout=0.5, rand=False, anonym=False):
+    def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False):
         self.country_id = country_id
         self.timeout = timeout
         self.random = rand
@@ -38,7 +38,6 @@ class FreeProxy:
         proxy_list = self.get_proxy_list()
         if self.random:
             random.shuffle(proxy_list)
-            proxy_list = proxy_list
         working_proxy = None
         while True:
             for i in range(len(proxy_list)):
