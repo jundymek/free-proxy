@@ -43,6 +43,8 @@ from fp.fp import FreeProxy
 | country_id | list      | ['US', 'BR'] | None          |
 | timeout    | float > 0 | 0.1          | 0.5           |
 | rand       | bool      | True         | False         |
+| anonym     | bool      | True         | False         |
+| elite      | bool      | True         | False         |
 
 - **No parameters**
   Get first working proxy from <https://www.sslproxies.org/>
