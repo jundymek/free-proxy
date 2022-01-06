@@ -43,6 +43,8 @@ from fp.fp import FreeProxy
 | country_id | list      | ['US', 'BR'] | None          |
 | timeout    | float > 0 | 0.1          | 0.5           |
 | rand       | bool      | True         | False         |
+| anonym     | bool      | True         | False         |
+| elite      | bool      | True         | False         |
 
 - **No parameters**
   Get first working proxy from <https://www.sslproxies.org/>
@@ -81,6 +83,15 @@ proxy = FreeProxy(rand=True).get()
 ```python
 proxy = FreeProxy(anonym=True).get()
 ```
+
+- **`elite` parameter**
+  Return only those proxies that are marked as 'elite proxy'. Defaults to `elite=False`.
+
+```python
+proxy = FreeProxy(elite=True).get()
+```
+
+Note that elite proxies is anonymous at the same time, thus `anonym=True` automatically when `elite=True`.
 
 You can combine parameters:
 
