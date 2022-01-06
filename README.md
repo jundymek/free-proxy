@@ -2,7 +2,11 @@
 
 ## Get free working proxy from <https://www.sslproxies.org/> and use it in your script
 
+<<<<<<< HEAD
 FreeProxy class scrapes proxies from <https://www.sslproxies.org/> and checkes if proxy is working. There is posibility to
+=======
+FreeProxy class scrapes proxies from <https://www.sslproxies.org/> and checks if proxy is working. There is possibility to
+>>>>>>> 34db7ebca87f17fecc028e8d57d6e988a4bbcf60
 filter proxies by country and acceptable timeout. You can also randomize list of proxies from where script would get
 first working proxy.
 
