@@ -2,8 +2,8 @@
 
 ## Get free working proxy from <https://www.sslproxies.org/> and use it in your script
 
-FreeProxy class scrapes proxies from <https://www.sslproxies.org/> and checkes if proxy is working. There is posibility to  
-filter proxies by country and acceptable timeout. You can also randomize list of proxies from where script would get  
+FreeProxy class scrapes proxies from <https://www.sslproxies.org/> and checkes if proxy is working. There is posibility to
+filter proxies by country and acceptable timeout. You can also randomize list of proxies from where script would get
 first working proxy.
 
 You can use it in sending request through custom proxy, with selenium or wherever you want.
@@ -43,31 +43,33 @@ from fp.fp import FreeProxy
 | country_id | list      | ['US', 'BR'] | None          |
 | timeout    | float > 0 | 0.1          | 0.5           |
 | rand       | bool      | True         | False         |
+| anonym     | bool      | True         | False         |
+| elite      | bool      | True         | False         |
 
-- **No parameters**  
+- **No parameters**
   Get first working proxy from <https://www.sslproxies.org/>
 
 ```python
 proxy = FreeProxy().get()
 ```
 
-- **`country_id` parameter**  
+- **`country_id` parameter**
   Get first working proxy from specified list of countries. If there is no valid proxy from specified list check all countries
 
 ```python
 proxy = FreeProxy(country_id=['US', 'BR']).get()
 ```
 
-- **`timeout` parameter**  
-  Timeout is parameter for checking if proxy is valid. If test site doesn't respond in specified time  
-  script marks this proxy as invalid. Default `timeout=0.5`. You can change it by defining  
+- **`timeout` parameter**
+  Timeout is parameter for checking if proxy is valid. If test site doesn't respond in specified time
+  script marks this proxy as invalid. Default `timeout=0.5`. You can change it by defining
   specified timeout eg. `timeout=1`.
 
 ```python
 proxy = FreeProxy(timeout=1).get()
 ```
 
-- **`rand` parameter**  
+- **`rand` parameter**
   Shuffles proxy list from <https://www.sslproxies.org/>. Default `rand=False` and searches for working proxy from newest
   to oldest (as they are listed in <https://www.sslproxies.org/>).
 
@@ -75,12 +77,21 @@ proxy = FreeProxy(timeout=1).get()
 proxy = FreeProxy(rand=True).get()
 ```
 
-- **`anonym` parameter**  
+- **`anonym` parameter**
   Return only those proxies that are marked as anonymous. Defaults to `anonym=False`
 
 ```python
 proxy = FreeProxy(anonym=True).get()
 ```
+
+- **`elite` parameter**
+  Return only those proxies that are marked as 'elite proxy'. Defaults to `elite=False`.
+
+```python
+proxy = FreeProxy(elite=True).get()
+```
+
+Note that elite proxies is anonymous at the same time, thus `anonym=True` automatically when `elite=True`.
 
 You can combine parameters:
 
