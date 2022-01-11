@@ -45,6 +45,8 @@ from fp.fp import FreeProxy
 | rand       | bool      | True         | False         |
 | anonym     | bool      | True         | False         |
 | elite      | bool      | True         | False         |
+| google     | bool,None | False        | None          |
+| https      | bool      | True         | False         |
 
 - **No parameters**
   Get first working proxy from <https://www.sslproxies.org/>
@@ -91,7 +93,23 @@ proxy = FreeProxy(anonym=True).get()
 proxy = FreeProxy(elite=True).get()
 ```
 
-Note that elite proxies is anonymous at the same time, thus `anonym=True` automatically when `elite=True`.
+Note that elite proxies are anonymous at the same time, thus `anonym=True` automatically when `elite=True`.
+
+- **`google` parameter**
+  If `True` it returns only those proxies that are marked as goggle, if `False` - as no google. Defaults to `google=None` that returns all proxies.
+
+```python
+proxy = FreeProxy(google=True).get()
+```
+
+- **`https` parameter**
+  If true it returns only those proxies that are marked as HTTPS. Defaults to `https=False` - i.e. HTTP proxy (for HTTP websites).
+
+  Note that HTTPS proxy is for both HTTP and HTTPS websites.
+
+```python
+proxy = FreeProxy(https=True).get()
+```
 
 You can combine parameters:
 
@@ -99,7 +117,7 @@ You can combine parameters:
 proxy = FreeProxy(country_id=['US', 'BR'], timeout=0.3, rand=True).get()
 ```
 
-If there is no working proxy script returns `There are no working proxies at this time.` message.
+If there are no working proxies with provided parameters script raises `FreeProxyException` with `There are no working proxies at this time.` message.
 
 ## CHANGELOG
 
@@ -107,7 +125,7 @@ If there is no working proxy script returns `There are no working proxies at thi
 
 ## [1.0.5] - 2022-01-07
 
-- Added `elite` parameter 
+- Added `elite` parameter
 - Add exception class and raise exception instead of system exit
 - Change lxml version to 4.6.5
 ## [1.0.4] - 2021-11-13
