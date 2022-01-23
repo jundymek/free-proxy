@@ -123,6 +123,10 @@ If there are no working proxies with provided parameters script raises `FreeProx
 
 ---
 
+## [1.0.6] - 2022-01-23
+
+- Added `google` parameter
+- Added `https` parameter
 ## [1.0.5] - 2022-01-07
 
 - Added `elite` parameter
