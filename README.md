@@ -96,7 +96,7 @@ proxy = FreeProxy(elite=True).get()
 Note that elite proxies are anonymous at the same time, thus `anonym=True` automatically when `elite=True`.
 
 - **`google` parameter**
-  If `True` it returns only those proxies that are marked as goggle, if `False` - as no google. Defaults to `google=None` that returns all proxies.
+  If `True` it returns only those proxies that are marked as google, if `False` - as no google. Defaults to `google=None` that returns all proxies.
 
 ```python
 proxy = FreeProxy(google=True).get()
