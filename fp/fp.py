@@ -25,12 +25,13 @@ class FreeProxy:
         self.google = google
         self.schema = 'https' if https else 'http'
 
-    def get_proxy_list(self):
+    def get_proxy_list(self, repeat):
         try:
-            page = requests.get('https://www.sslproxies.org')
+            page = requests.get(self.__website(repeat))
             doc = lh.fromstring(page.content)
         except requests.exceptions.RequestException as e:
-            raise FreeProxyException('Request to www.sslproxies.org failed') from e
+            raise FreeProxyException(
+                'Request to www.sslproxies.org failed') from e
         try:
             tr_elements = doc.xpath('//*[@id="list"]//tr')
             return [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}'
@@ -38,17 +39,31 @@ class FreeProxy:
         except Exception as e:
             raise FreeProxyException('Failed to get list of proxies') from e
 
+    def __website(self, repeat):
+        if repeat:
+            return "https://free-proxy-list.net"
+        elif self.country_id == ['US']:
+            return 'https://www.us-proxy.org'
+        elif self.country_id == ['UK']:
+            return 'https://free-proxy-list.net/uk-proxy.html'
+        else:
+            return 'https://www.sslproxies.org'
+
     def __criteria(self, row_elements):
-        country_criteria = True if not self.country_id else row_elements[2].text_content() in self.country_id
-        elite_criteria = True if not self.elite else 'elite' in row_elements[4].text_content()
-        anonym_criteria = True if (not self.anonym) or self.elite else 'anonymous' == row_elements[4].text_content()
+        country_criteria = True if not self.country_id else row_elements[2].text_content(
+        ) in self.country_id
+        elite_criteria = True if not self.elite else 'elite' in row_elements[4].text_content(
+        )
+        anonym_criteria = True if (
+            not self.anonym) or self.elite else 'anonymous' == row_elements[4].text_content()
         switch = {'yes': True, 'no': False}
-        google_criteria = True if self.google is None else self.google == switch.get(row_elements[5].text_content())
+        google_criteria = True if self.google is None else self.google == switch.get(
+            row_elements[5].text_content())
         return country_criteria and elite_criteria and anonym_criteria and google_criteria
 
-    def get(self):
+    def get(self, repeat=False):
         '''Returns a proxy that matches the specified parameters.'''
-        proxy_list = self.get_proxy_list()
+        proxy_list = self.get_proxy_list(repeat)
         if self.random:
             random.shuffle(proxy_list)
         working_proxy = None
@@ -63,8 +78,9 @@ class FreeProxy:
         if not working_proxy:
             if self.country_id is not None:
                 self.country_id = None
-                return self.get()
-            raise FreeProxyException('There are no working proxies at this time.')
+                return self.get(repeat=True)
+            raise FreeProxyException(
+                'There are no working proxies at this time.')
 
     def __check_if_proxy_is_working(self, proxies):
         url = f'{self.schema}://www.google.com'
