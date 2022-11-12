@@ -10,10 +10,12 @@ from fp.errors import FreeProxyException
 
 class FreeProxy:
     '''
-    FreeProxy class scrapes proxies from <https://www.sslproxies.org/>
-    and checks if proxy is working. There is possibility to filter proxies
-    by country and acceptable timeout. You can also randomize list
-    of proxies from where script would get first working proxy.
+    FreeProxy class scrapes proxies from <https://www.sslproxies.org/>,
+    <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>,
+    and <https://free-proxy-list.net> and checks if proxy is working. 
+    There is possibility to filter proxies by country and acceptable timeout. 
+    You can also randomize list of proxies from where script would get first 
+    working proxy.
     '''
 
     def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False, elite=False, google=None, https=False):
@@ -28,10 +30,11 @@ class FreeProxy:
     def get_proxy_list(self, repeat):
         try:
             page = requests.get(self.__website(repeat))
+            print(self.__website(repeat))
             doc = lh.fromstring(page.content)
         except requests.exceptions.RequestException as e:
             raise FreeProxyException(
-                'Request to www.sslproxies.org failed') from e
+                f'Request to {self.__website(repeat)} failed') from e
         try:
             tr_elements = doc.xpath('//*[@id="list"]//tr')
             return [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}'
@@ -44,7 +47,7 @@ class FreeProxy:
             return "https://free-proxy-list.net"
         elif self.country_id == ['US']:
             return 'https://www.us-proxy.org'
-        elif self.country_id == ['UK']:
+        elif self.country_id == ['GB']:
             return 'https://free-proxy-list.net/uk-proxy.html'
         else:
             return 'https://www.sslproxies.org'
@@ -62,8 +65,9 @@ class FreeProxy:
         return country_criteria and elite_criteria and anonym_criteria and google_criteria
 
     def get(self, repeat=False):
-        '''Returns a proxy that matches the specified parameters.'''
+        '''Returns a working proxy that matches the specified parameters.'''
         proxy_list = self.get_proxy_list(repeat)
+        print(proxy_list)
         if self.random:
             random.shuffle(proxy_list)
         working_proxy = None
