@@ -30,7 +30,6 @@ class FreeProxy:
     def get_proxy_list(self, repeat):
         try:
             page = requests.get(self.__website(repeat))
-            print(self.__website(repeat))
             doc = lh.fromstring(page.content)
         except requests.exceptions.RequestException as e:
             raise FreeProxyException(
@@ -67,7 +66,6 @@ class FreeProxy:
     def get(self, repeat=False):
         '''Returns a working proxy that matches the specified parameters.'''
         proxy_list = self.get_proxy_list(repeat)
-        print(proxy_list)
         if self.random:
             random.shuffle(proxy_list)
         working_proxy = None
