@@ -1,6 +1,6 @@
 # Free-proxy
 
-## Get free working proxy from <https://www.sslproxies.org/> and use it in your script
+## Get free working proxy from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use it in your script
 
 FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and checks if proxy is working. There is possibility to
 filter proxies by country and acceptable timeout. You can also randomize list of proxies from where script would get
@@ -136,6 +136,7 @@ If there are no working proxies with provided parameters script raises `FreeProx
 - Added new website to get proxies from <https://free-proxy-list.net>
 - Added new website to get proxies from <https://free-proxy-list.net/uk-proxy.html>
 - Added new website to get proxies from <https://www.us-proxy.org/>
+- Change lxml version to 4.9.1
 
 ## [1.0.6] - 2022-01-23
 
