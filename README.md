@@ -1,8 +1,8 @@
 # Free-proxy
 
-## Get free working proxy from <https://www.sslproxies.org/> and use it in your script
+## Get free working proxy from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use it in your script
 
-FreeProxy class scrapes proxies from <https://www.sslproxies.org/> and checks if proxy is working. There is possibility to
+FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and checks if proxy is working. There is possibility to
 filter proxies by country and acceptable timeout. You can also randomize list of proxies from where script would get
 first working proxy.
 
@@ -49,17 +49,25 @@ from fp.fp import FreeProxy
 | https      | bool      | True         | False         |
 
 - **No parameters**
-  Get first working proxy from <https://www.sslproxies.org/>
+  Get first working proxy from <https://www.sslproxies.org/>. When no proxy is working, repeat once again from <https://free-proxy-list.net>
 
 ```python
 proxy = FreeProxy().get()
 ```
 
 - **`country_id` parameter**
-  Get first working proxy from specified list of countries. If there is no valid proxy from specified list check all countries
+  Get first working proxy from specified list of countries (from <https://www.sslproxies.org/>). If there is no valid proxy from specified list **check all countries** from <https://free-proxy-list.net>.
 
 ```python
 proxy = FreeProxy(country_id=['US', 'BR']).get()
+```
+
+- **`country_id` for US and GB**
+  You can set country_id to US and GB to get proxy from United States or United Kingdom. In that case proxies will be scrapped from <https://www.us-proxy.org/> (`US`) or <https://free-proxy-list.net/uk-proxy.html> (`GB`) page. If there is no valid proxy from specified list **check all countries**
+
+```python
+proxy = FreeProxy(country_id=['US']).get()
+proxy = FreeProxy(country_id=['GB']).get()
 ```
 
 - **`timeout` parameter**
@@ -123,15 +131,24 @@ If there are no working proxies with provided parameters script raises `FreeProx
 
 ---
 
+## [1.1.0] - 2022-11-12
+
+- Added new website to get proxies from <https://free-proxy-list.net>
+- Added new website to get proxies from <https://free-proxy-list.net/uk-proxy.html>
+- Added new website to get proxies from <https://www.us-proxy.org/>
+- Change lxml version to 4.9.1
+
 ## [1.0.6] - 2022-01-23
 
 - Added `google` parameter
 - Added `https` parameter
+
 ## [1.0.5] - 2022-01-07
 
 - Added `elite` parameter
 - Add exception class and raise exception instead of system exit
 - Change lxml version to 4.6.5
+
 ## [1.0.4] - 2021-11-13
 
 - Fix proxy list default length

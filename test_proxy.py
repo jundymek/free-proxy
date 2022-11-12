@@ -23,25 +23,25 @@ class TestProxy(unittest.TestCase):
 
     def test_anonym_filter(self):
         test1 = FreeProxy()
-        cnt1 = len(test1.get_proxy_list())
+        cnt1 = len(test1.get_proxy_list(repeat=False))
         test2 = FreeProxy(anonym=True)
-        cnt2 = len(test2.get_proxy_list())
+        cnt2 = len(test2.get_proxy_list(repeat=False))
         self.assertTrue(cnt2 < cnt1)
 
     def test_elite_filter(self):
         test1 = FreeProxy()
-        cnt1 = len(test1.get_proxy_list())
+        cnt1 = len(test1.get_proxy_list(repeat=False))
         test2 = FreeProxy(elite=True)
-        cnt2 = len(test2.get_proxy_list())
+        cnt2 = len(test2.get_proxy_list(repeat=False))
         self.assertTrue(cnt2 < cnt1)
 
     def test_google_filter(self):
         test1 = FreeProxy()
-        cnt1 = len(test1.get_proxy_list())
+        cnt1 = len(test1.get_proxy_list(repeat=False))
         test2 = FreeProxy(google=True)
         test3 = FreeProxy(google=False)
-        cnt2 = len(test2.get_proxy_list())
-        cnt3 = len(test3.get_proxy_list())
+        cnt2 = len(test2.get_proxy_list(repeat=False))
+        cnt3 = len(test3.get_proxy_list(repeat=False))
         self.assertTrue(cnt2 < cnt1)
         self.assertTrue(cnt3 < cnt1)
 
@@ -80,6 +80,36 @@ class TestProxy(unittest.TestCase):
         actual_1 = subject._FreeProxy__criteria(self.__tr_elements()[1])
         self.assertEqual(False, actual_0)
         self.assertEqual(True, actual_1)
+
+    def test_country_id_us_page_first_loop(self):
+        subject = FreeProxy(country_id=['US'])
+        actual = subject._FreeProxy__website(repeat=False)
+        self.assertEqual('https://www.us-proxy.org', actual)
+
+    def test_country_id_us_page_second_loop(self):
+        subject = FreeProxy(country_id=['US'])
+        actual = subject._FreeProxy__website(repeat=True)
+        self.assertEqual('https://free-proxy-list.net', actual)
+
+    def test_country_id_gb_page_first_loop(self):
+        subject = FreeProxy(country_id=['GB'])
+        actual = subject._FreeProxy__website(repeat=False)
+        self.assertEqual('https://free-proxy-list.net/uk-proxy.html', actual)
+
+    def test_country_id_gb_page_second_loop(self):
+        subject = FreeProxy(country_id=['GB'])
+        actual = subject._FreeProxy__website(repeat=True)
+        self.assertEqual('https://free-proxy-list.net', actual)
+
+    def default_page_first_loop(self):
+        subject = FreeProxy()
+        actual = subject._FreeProxy__website(repeat=False)
+        self.assertEqual('https://www.sslproxies.org', actual)
+
+    def default_page_second_loop(self):
+        subject = FreeProxy()
+        actual = subject._FreeProxy__website(repeat=True)
+        self.assertEqual('https://free-proxy-list.net', actual)
 
     def __tr_elements(self):
         return lh.fromstring(
