@@ -81,6 +81,13 @@ class TestProxy(unittest.TestCase):
         self.assertEqual(False, actual_0)
         self.assertEqual(True, actual_1)
 
+    def test_criteria_https_true(self):
+        subject = FreeProxy(https=True)
+        actual_0 = subject._FreeProxy__criteria(self.__tr_elements()[0])
+        actual_1 = subject._FreeProxy__criteria(self.__tr_elements()[1])
+        self.assertEqual(True, actual_0)
+        self.assertEqual(False, actual_1)
+
     def test_country_id_us_page_first_loop(self):
         subject = FreeProxy(country_id=['US'])
         actual = subject._FreeProxy__website(repeat=False)
@@ -118,7 +125,7 @@ class TestProxy(unittest.TestCase):
             '<td class="hm">no</td><td class="hx">yes</td><td class="hm">1 min ago</td>'
             '</tr> <tr>'
             '<td>222.222.222.222</td><td>8080</td><td>NL</td><td class="hm">Netherlands</td><td>elite proxy</td>'
-            '<td class="hm">yes</td><td class="hx">yes</td><td class="hm">2 mins ago</td>'
+            '<td class="hm">yes</td><td class="hx">no</td><td class="hm">2 mins ago</td>'
             '</tr>'
         ).xpath('//tr')
 
