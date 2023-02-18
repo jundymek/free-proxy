@@ -68,7 +68,6 @@ class FreeProxy:
     def get(self, repeat=False):
         '''Returns a working proxy that matches the specified parameters.'''
         proxy_list = self.get_proxy_list(repeat)
-        print(proxy_list)
         if self.random:
             random.shuffle(proxy_list)
         working_proxy = None
