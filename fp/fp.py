@@ -61,7 +61,9 @@ class FreeProxy:
         switch = {'yes': True, 'no': False}
         google_criteria = True if self.google is None else self.google == switch.get(
             row_elements[5].text_content())
-        return country_criteria and elite_criteria and anonym_criteria and google_criteria
+        https_criteria = True if self.schema == 'http' else row_elements[6].text_content(
+        ).lower() == 'yes'
+        return country_criteria and elite_criteria and anonym_criteria and google_criteria and https_criteria
 
     def get(self, repeat=False):
         '''Returns a working proxy that matches the specified parameters.'''
@@ -70,19 +72,19 @@ class FreeProxy:
             random.shuffle(proxy_list)
         working_proxy = None
         for proxy_address in proxy_list:
-            proxies = {self.schema: f'{self.schema}://{proxy_address}'}
+            proxies = {self.schema: f'http://{proxy_address}'}
             try:
                 working_proxy = self.__check_if_proxy_is_working(proxies)
                 if working_proxy:
                     return working_proxy
             except requests.exceptions.RequestException:
                 continue
-        if not working_proxy:
+        if not working_proxy and not repeat:
             if self.country_id is not None:
                 self.country_id = None
-                return self.get(repeat=True)
-            raise FreeProxyException(
-                'There are no working proxies at this time.')
+            return self.get(repeat=True)
+        raise FreeProxyException(
+            'There are no working proxies at this time.')
 
     def __check_if_proxy_is_working(self, proxies):
         url = f'{self.schema}://www.google.com'
