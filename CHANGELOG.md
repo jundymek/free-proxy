@@ -1,3 +1,8 @@
+## [1.1.1] - 2023-02-18
+
+- Fixed https parameter error
+- Fixed additional loop issue when no proxy was found
+
 ## [1.1.0] - 2022-11-12
 
 - Added new website to get proxies from: <https://free-proxy-list.net>
