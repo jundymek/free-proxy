@@ -2,7 +2,7 @@
 
 ## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
 
-The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and checks to make sure that the proxy is working. 
+The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>, and <https://free-proxy-list.net> and checks to make sure that the proxy is working. 
 You are able to filter proxies by country and specify an acceptable timeout. You can also randomize the list of proxies, rather than going in the order that they are scraped in.
 
 You can use this to send requests through a custom proxy, with Selenium or with whatever else you want.
