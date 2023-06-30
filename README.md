@@ -15,9 +15,9 @@ Returns proxy as string:
 
 ### Requirements
 
-- Python3
-- Requests library
-- Lxml library
+- [Python 3](https://www.python.org/downloads/)
+- [Requests library](https://github.com/psf/requests)
+- [Lxml library](https://github.com/lxml/lxml)
 
 ### Installation
 
