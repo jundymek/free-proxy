@@ -1,5 +1,5 @@
 # Free-proxy
-![Version 1.1.1](https://img.shields.io/badge/Version-1.1.1-orange.svg)
+![Version 1.1.1](https://img.shields.io/badge/Version-1.1.1-green.svg)
 ![Python 3](https://img.shields.io/badge/Python-3-3776ab.svg)
 
 
