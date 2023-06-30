@@ -2,10 +2,10 @@
 
 ## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
 
-The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>, and <https://free-proxy-list.net> and checks to make sure that the proxy is working. 
-You are able to filter proxies by country and specify an acceptable timeout. You can also randomize the list of proxies, rather than going in the order that they are scraped in.
+The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>, and <https://free-proxy-list.net> and checks to make sure that it works. 
+You can filter proxies by country, and specify an acceptable timeout. You can also randomize the list of proxies, rather than going in the order that they are scraped in.
 
-You can use this to send requests through a custom proxy, with Selenium or with whatever else you want.
+You can use this to send requests through a custom proxy, with Selenium, or with anything else.
 
 Returns proxy as string:
 
@@ -48,14 +48,14 @@ from fp.fp import FreeProxy
 | https      | bool      | True         | False         |
 
 - **No parameters**
-  Get the first working proxy from <https://www.sslproxies.org/>. If none of the proxies are working, try again pulling from <https://free-proxy-list.net>
+  Get the first working proxy from <https://www.sslproxies.org/>. If no proxies are working, try again pulling from <https://free-proxy-list.net>
 
 ```python
 proxy = FreeProxy().get()
 ```
 
 - **`country_id` parameter**
-  Get the first working proxy from a specified list of countries (from <https://www.sslproxies.org/>). If there are no valid proxies in the specified list **check all countries** pulling from <https://free-proxy-list.net>.
+  Get the first working proxy from a specified list of countries (from <https://www.sslproxies.org/>). If no proxies are working **check all countries** pulling from <https://free-proxy-list.net>.
 
 ```python
 proxy = FreeProxy(country_id=['US', 'BR']).get()
@@ -78,21 +78,21 @@ proxy = FreeProxy(timeout=1).get()
 ```
 
 - **`rand` parameter**
-  Shuffles the order of the proxy list from <https://www.sslproxies.org/>. By default, `rand=False` and the list will be sorted from newest to oldest when looking for working proxies (as they are listed on <https://www.sslproxies.org/>).
+  Shuffles the order of the proxy list from <https://www.sslproxies.org/> instead of going from newest to oldest (as listed on the website). Defaults to `rand=False`
 
 ```python
 proxy = FreeProxy(rand=True).get()
 ```
 
 - **`anonym` parameter**
-  Return only proxies marked as anonymous. By default, `anonym=False`
+  Return only proxies marked as anonymous. Defaults to `anonym=False`
 
 ```python
 proxy = FreeProxy(anonym=True).get()
 ```
 
 - **`elite` parameter**
-  Return only proxies marked as 'elite proxy'. By default, `elite=False`.
+  Return only proxies marked as 'elite proxy'. Defaults to `elite=False`.
 
 ```python
 proxy = FreeProxy(elite=True).get()
@@ -178,6 +178,6 @@ If there are no working proxies with the provided parameters, the script will ra
 
 ---
 
-MIT
+[MIT](https://github.com/jundymek/free-proxy/blob/master/LICENSE)
 
 **Free Software!**
