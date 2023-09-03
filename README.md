@@ -1,12 +1,13 @@
 # Free-proxy
+![Version 1.1.1](https://img.shields.io/badge/Version-1.1.1-blue.svg)
 
-## Get free working proxy from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use it in your script
 
-FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and checks if proxy is working. There is possibility to
-filter proxies by country and acceptable timeout. You can also randomize list of proxies from where script would get
-first working proxy.
+## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
 
-You can use it in sending request through custom proxy, with selenium or wherever you want.
+The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>, and <https://free-proxy-list.net> and checks to make sure that it works. 
+You can filter proxies by country, and specify an acceptable timeout. You can also randomize the list of proxies, rather than going in the order that they are scraped in.
+
+You can use this to send requests through a custom proxy, with Selenium, or with anything else.
 
 Returns proxy as string:
 
@@ -16,9 +17,9 @@ Returns proxy as string:
 
 ### Requirements
 
-- Python3
-- Request library
-- Lxml library
+- [Python 3](https://www.python.org/downloads/)
+- [Requests library](https://github.com/psf/requests)
+- [Lxml library](https://github.com/lxml/lxml)
 
 ### Installation
 
@@ -28,7 +29,7 @@ pip install free-proxy
 
 [![asciicast](https://asciinema.org/a/Xolpn3eD2tyJl8Y8HE9zolgex.svg)](https://asciinema.org/a/Xolpn3eD2tyJl8Y8HE9zolgex)
 
-### Usage with examples
+### Usage examples
 
 First import Free Proxy that way:
 
@@ -49,21 +50,21 @@ from fp.fp import FreeProxy
 | https      | bool      | True         | False         |
 
 - **No parameters**
-  Get first working proxy from <https://www.sslproxies.org/>. When no proxy is working, repeat once again from <https://free-proxy-list.net>
+  Get the first working proxy from <https://www.sslproxies.org/>. If no proxies are working, try again pulling from <https://free-proxy-list.net>
 
 ```python
 proxy = FreeProxy().get()
 ```
 
 - **`country_id` parameter**
-  Get first working proxy from specified list of countries (from <https://www.sslproxies.org/>). If there is no valid proxy from specified list **check all countries** from <https://free-proxy-list.net>.
+  Get the first working proxy from a specified list of countries (from <https://www.sslproxies.org/>). If no proxies are working **check all countries** pulling from <https://free-proxy-list.net>.
 
 ```python
 proxy = FreeProxy(country_id=['US', 'BR']).get()
 ```
 
 - **`country_id` for US and GB**
-  You can set country_id to US and GB to get proxy from United States or United Kingdom. In that case proxies will be scrapped from <https://www.us-proxy.org/> (`US`) or <https://free-proxy-list.net/uk-proxy.html> (`GB`) page. If there is no valid proxy from specified list **check all countries**
+  You can set the country_id to US or GB to get a proxy from the United States or the United Kingdom respectively. Proxies will be scrapped from <https://www.us-proxy.org/> (`US`) or <https://free-proxy-list.net/uk-proxy.html> (`GB`). If there are no working proxies in the specified list **check all countries**
 
 ```python
 proxy = FreeProxy(country_id=['US']).get()
@@ -71,49 +72,47 @@ proxy = FreeProxy(country_id=['GB']).get()
 ```
 
 - **`timeout` parameter**
-  Timeout is parameter for checking if proxy is valid. If test site doesn't respond in specified time
-  script marks this proxy as invalid. Default `timeout=0.5`. You can change it by defining
-  specified timeout eg. `timeout=1`.
+  Timeout is the parameter for checking if a proxy is valid. If the server does not respond in specified time, 
+  the script will mark the proxy as invalid. Default `timeout=0.5`. You can change it by specifying a timeout eg. `timeout=1`.
 
 ```python
 proxy = FreeProxy(timeout=1).get()
 ```
 
 - **`rand` parameter**
-  Shuffles proxy list from <https://www.sslproxies.org/>. Default `rand=False` and searches for working proxy from newest
-  to oldest (as they are listed in <https://www.sslproxies.org/>).
+  Shuffles the order of the proxy list from <https://www.sslproxies.org/> instead of going from newest to oldest (as listed on the website). Defaults to `rand=False`
 
 ```python
 proxy = FreeProxy(rand=True).get()
 ```
 
 - **`anonym` parameter**
-  Return only those proxies that are marked as anonymous. Defaults to `anonym=False`
+  Return only proxies marked as anonymous. Defaults to `anonym=False`
 
 ```python
 proxy = FreeProxy(anonym=True).get()
 ```
 
 - **`elite` parameter**
-  Return only those proxies that are marked as 'elite proxy'. Defaults to `elite=False`.
+  Return only proxies marked as 'elite proxy'. Defaults to `elite=False`.
 
 ```python
 proxy = FreeProxy(elite=True).get()
 ```
 
-Note that elite proxies are anonymous at the same time, thus `anonym=True` automatically when `elite=True`.
+Please note: elite proxies are always anonymous. If you set `elite=True`, you will also be eliminating any non-anonymous proxies.
 
 - **`google` parameter**
-  If `True` it returns only those proxies that are marked as google, if `False` - as no google. Defaults to `google=None` that returns all proxies.
+  If `True` it will only return proxies marked as "google". If `False`, it will not return proxies marked as "google". Defaults to `google=None`, which returns all proxies.
 
 ```python
 proxy = FreeProxy(google=True).get()
 ```
 
 - **`https` parameter**
-  If true it returns only those proxies that are marked as HTTPS. Defaults to `https=False` - i.e. HTTP proxy (for HTTP websites).
+  If `True` it will only return proxies marked as HTTPS. Defaults to `https=False` - i.e. HTTP proxy (for HTTP websites).
 
-  Note that HTTPS proxy is for both HTTP and HTTPS websites.
+  Please note: HTTPS proxies work for both HTTP and HTTPS websites.
 
 ```python
 proxy = FreeProxy(https=True).get()
@@ -125,7 +124,7 @@ You can combine parameters:
 proxy = FreeProxy(country_id=['US', 'BR'], timeout=0.3, rand=True).get()
 ```
 
-If there are no working proxies with provided parameters script raises `FreeProxyException` with `There are no working proxies at this time.` message.
+If there are no working proxies with the provided parameters, the script will raise `FreeProxyException` with the message `There are no working proxies at this time.`.
 
 ## CHANGELOG
 
@@ -181,6 +180,6 @@ If there are no working proxies with provided parameters script raises `FreeProx
 
 ---
 
-MIT
+[MIT](https://github.com/jundymek/free-proxy/blob/master/LICENSE)
 
 **Free Software!**
