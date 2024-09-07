@@ -1,3 +1,9 @@
+## [1.1.2] - 2024-07-29
+
+- Updated lxml to version 5.3.0
+- Updated pip-chill to version 1.0.3
+- Updated requests to version 2.32.3
+
 ## [1.1.1] - 2023-02-18
 
 - Fixed https parameter error
