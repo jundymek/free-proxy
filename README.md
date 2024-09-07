@@ -1,10 +1,10 @@
 # Free-proxy
-![Version 1.1.1](https://img.shields.io/badge/Version-1.1.1-blue.svg)
 
+![Version 1.1.2](https://img.shields.io/badge/Version-1.1.2-blue.svg)
 
 ## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
 
-The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>, and <https://free-proxy-list.net> and checks to make sure that it works. 
+The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>, and <https://free-proxy-list.net> and checks to make sure that it works.
 You can filter proxies by country, and specify an acceptable timeout. You can also randomize the list of proxies, rather than going in the order that they are scraped in.
 
 You can use this to send requests through a custom proxy, with Selenium, or with anything else.
@@ -72,7 +72,7 @@ proxy = FreeProxy(country_id=['GB']).get()
 ```
 
 - **`timeout` parameter**
-  Timeout is the parameter for checking if a proxy is valid. If the server does not respond in specified time, 
+  Timeout is the parameter for checking if a proxy is valid. If the server does not respond in specified time,
   the script will mark the proxy as invalid. Default `timeout=0.5`. You can change it by specifying a timeout eg. `timeout=1`.
 
 ```python
@@ -129,6 +129,12 @@ If there are no working proxies with the provided parameters, the script will ra
 ## CHANGELOG
 
 ---
+
+## [1.1.2] - 2024-09-07
+
+- Updated lxml to version 5.3.0
+- Updated pip-chill to version 1.0.3
+- Updated requests to version 2.32.3
 
 ## [1.1.1] - 2023-02-18
 
