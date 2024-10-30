@@ -144,6 +144,9 @@ proxy = FreeProxy(url='http://httpbin.org/get').get()
 ## CHANGELOG
 
 ---
+## [1.1.3] - 2024-10-30
+
+- Added `url` paramameter
 
 ## [1.1.2] - 2024-09-07
 
