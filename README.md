@@ -48,7 +48,7 @@ from fp.fp import FreeProxy
 | elite      | bool      | True         | False         |
 | google     | bool,None | False        | None          |
 | https      | bool      | True         | False         |
-
+| url        | str       | ''           | google.com    |
 - **No parameters**
   Get the first working proxy from <https://www.sslproxies.org/>. If no proxies are working, try again pulling from <https://free-proxy-list.net>
 
@@ -126,6 +126,21 @@ proxy = FreeProxy(country_id=['US', 'BR'], timeout=0.3, rand=True).get()
 
 If there are no working proxies with the provided parameters, the script will raise `FreeProxyException` with the message `There are no working proxies at this time.`.
 
+- **`url` parameter**
+  The url parameter allows you to set a custom URL for testing purposes. If left empty, it defaults to 'https://www.google.com'.
+
+Using default URL:
+
+```python
+proxy = FreeProxy().get() 
+```
+
+Using custom URL, if test on different endpoint is needed:
+
+```python
+proxy = FreeProxy(url='http://httpbin.org/get').get() 
+```
+
 ## CHANGELOG
 
 ---
@@ -181,6 +196,10 @@ If there are no working proxies with the provided parameters, the script will ra
 ## [1.0.0] - 2019-02-04
 
 - Initial release
+
+## Disclaimer
+
+The authors of this repository are not responsible for any consequences, damages or losses arising from the use or misuse of this repository or content. Users are solely responsible for their actions and any consequences that may follow.
 
 ## License
 

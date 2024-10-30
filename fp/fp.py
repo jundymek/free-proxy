@@ -18,7 +18,7 @@ class FreeProxy:
     working proxy.
     '''
 
-    def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False, elite=False, google=None, https=False):
+    def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False, elite=False, google=None, https=False, url='https://www.google.com'):
         self.country_id = country_id
         self.timeout = timeout
         self.random = rand
@@ -26,6 +26,7 @@ class FreeProxy:
         self.elite = elite
         self.google = google
         self.schema = 'https' if https else 'http'
+        self.url = url
 
     def get_proxy_list(self, repeat):
         try:
@@ -87,7 +88,7 @@ class FreeProxy:
             'There are no working proxies at this time.')
 
     def __check_if_proxy_is_working(self, proxies):
-        url = f'{self.schema}://www.google.com'
+        url = f'{self.schema}://{self.url}'
         ip = proxies[self.schema].split(':')[1][2:]
         with requests.get(url, proxies=proxies, timeout=self.timeout, stream=True) as r:
             if r.raw.connection.sock and r.raw.connection.sock.getpeername()[0] == ip:
