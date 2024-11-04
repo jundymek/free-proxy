@@ -1,3 +1,7 @@
+## [1.1.3] - 2024-11-07
+
+- Added `url` paramameter
+
 ## [1.1.2] - 2024-07-29
 
 - Updated lxml to version 5.3.0
