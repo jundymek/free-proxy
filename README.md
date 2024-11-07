@@ -1,6 +1,6 @@
 # Free-proxy
 
-![Version 1.1.2](https://img.shields.io/badge/Version-1.1.2-blue.svg)
+![Version 1.1.3](https://img.shields.io/badge/Version-1.1.3-blue.svg)
 
 ## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
 
@@ -48,7 +48,7 @@ from fp.fp import FreeProxy
 | elite      | bool      | True         | False         |
 | google     | bool,None | False        | None          |
 | https      | bool      | True         | False         |
-
+| url        | str       | ''           | google.com    |
 - **No parameters**
   Get the first working proxy from <https://www.sslproxies.org/>. If no proxies are working, try again pulling from <https://free-proxy-list.net>
 
@@ -126,9 +126,27 @@ proxy = FreeProxy(country_id=['US', 'BR'], timeout=0.3, rand=True).get()
 
 If there are no working proxies with the provided parameters, the script will raise `FreeProxyException` with the message `There are no working proxies at this time.`.
 
+- **`url` parameter**
+  The url parameter allows you to set a custom URL for testing purposes. If left empty, it defaults to 'https://www.google.com'.
+
+Using default URL:
+
+```python
+proxy = FreeProxy().get() 
+```
+
+Using custom URL, if test on different endpoint is needed:
+
+```python
+proxy = FreeProxy(url='http://httpbin.org/get').get() 
+```
+
 ## CHANGELOG
 
 ---
+## [1.1.3] - 2024-11-07
+
+- Added `url` paramameter
 
 ## [1.1.2] - 2024-09-07
 
@@ -181,6 +199,10 @@ If there are no working proxies with the provided parameters, the script will ra
 ## [1.0.0] - 2019-02-04
 
 - Initial release
+
+## Disclaimer
+
+The authors of this repository are not responsible for any consequences, damages or losses arising from the use or misuse of this repository or content. Users are solely responsible for their actions and any consequences that may follow.
 
 ## License
 

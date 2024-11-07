@@ -118,6 +118,14 @@ class TestProxy(unittest.TestCase):
         actual = subject._FreeProxy__website(repeat=True)
         self.assertEqual('https://free-proxy-list.net', actual)
 
+    def test_default_url(self):
+        proxy =FreeProxy()
+        self.assertEqual(proxy.url, 'https://www.google.com')
+
+    def test_custom_url(self):
+        proxy = FreeProxy(url='http://httpbin.org/get')
+        self.assertEqual(proxy.url, 'http://httpbin.org/get')
+
     def __tr_elements(self):
         return lh.fromstring(
             '<tr>'
