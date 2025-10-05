@@ -2,9 +2,9 @@
 
 ![Version 1.1.3](https://img.shields.io/badge/Version-1.1.3-blue.svg)
 
-## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
+## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net>, or https://proxylist.geonode.com/api/proxy-list and https://proxyscrape.com and use them in your script
 
-The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>, and <https://free-proxy-list.net> and checks to make sure that it works.
+The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>, <https://free-proxy-list.net> or <https://proxylist.geonode.com/api/proxy-list> and <https://proxyscrape.com> and checks to make sure that it works.
 You can filter proxies by country, and specify an acceptable timeout. You can also randomize the list of proxies, rather than going in the order that they are scraped in.
 
 You can use this to send requests through a custom proxy, with Selenium, or with anything else.
