@@ -1,6 +1,6 @@
 # Free-proxy
 
-![Version 1.2.0](https://img.shields.io/badge/Version-1.2.0-blue.svg)
+![Version 1.2.1](https://img.shields.io/badge/Version-1.2.1-blue.svg)
 
 ## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
 

@@ -88,7 +88,7 @@ class FreeProxy:
             'There are no working proxies at this time.')
 
     def __check_if_proxy_is_working(self, proxies):
-        url = f'{self.schema}://{self.url}'
+        url = self.url
         ip = proxies[self.schema].split(':')[1][2:]
         with requests.get(url, proxies=proxies, timeout=self.timeout, stream=True) as r:
             if r.raw.connection.sock and r.raw.connection.sock.getpeername()[0] == ip:

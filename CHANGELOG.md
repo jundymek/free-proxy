@@ -1,3 +1,7 @@
+## [1.2.1] - 2026-06-09
+
+- Fixed proxy check failing due to a duplicated URL schema (`http://https://...`), introduced in 1.1.3. This broke `https=True` and custom `url` usage (#52, #43).
+
 ## [1.2.0] - 2026-06-09
 
 - Updated lxml to version 6.1.1
