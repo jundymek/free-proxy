@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import lxml.html as lh
 
@@ -125,6 +125,36 @@ class TestProxy(unittest.TestCase):
     def test_custom_url(self):
         proxy = FreeProxy(url='http://httpbin.org/get')
         self.assertEqual(proxy.url, 'http://httpbin.org/get')
+
+    @patch('fp.fp.requests.get')
+    def test_check_uses_default_url_without_double_schema(self, mock_get):
+        '''The default url should be requested as-is, not prefixed with schema again.'''
+        mock_get.return_value.__enter__ = lambda s: s
+        mock_get.return_value.__exit__ = MagicMock(return_value=False)
+        mock_get.return_value.raw.connection.sock = None
+        proxy = FreeProxy()
+        proxy.get_proxy_list = MagicMock(return_value=['1.2.3.4:8080'])
+        try:
+            proxy.get()
+        except FreeProxyException:
+            pass
+        requested_url = mock_get.call_args[0][0]
+        self.assertEqual('https://www.google.com', requested_url)
+
+    @patch('fp.fp.requests.get')
+    def test_check_uses_custom_url_without_double_schema(self, mock_get):
+        '''A custom url should be requested as-is, not prefixed with schema again.'''
+        mock_get.return_value.__enter__ = lambda s: s
+        mock_get.return_value.__exit__ = MagicMock(return_value=False)
+        mock_get.return_value.raw.connection.sock = None
+        proxy = FreeProxy(url='http://httpbin.org/get')
+        proxy.get_proxy_list = MagicMock(return_value=['1.2.3.4:8080'])
+        try:
+            proxy.get()
+        except FreeProxyException:
+            pass
+        requested_url = mock_get.call_args[0][0]
+        self.assertEqual('http://httpbin.org/get', requested_url)
 
     def __tr_elements(self):
         return lh.fromstring(
