@@ -144,6 +144,18 @@ proxy = FreeProxy(url='http://httpbin.org/get').get()
 ## CHANGELOG
 
 ---
+## [1.2.1] - 2026-06-09
+
+- Fixed proxy check failing due to a duplicated URL schema (`http://https://...`), introduced in 1.1.3. This broke `https=True` and custom `url` usage (#52, #43).
+
+## [1.2.0] - 2026-06-09
+
+- Updated lxml to version 6.1.1
+- Updated requests to version 2.34.2
+- Updated pip-chill to version 1.0.5
+- Pinned minimum dependency versions in `install_requires` (`lxml>=5.0,<7`, `requests>=2.31,<3`)
+- Raised minimum Python version to 3.8
+
 ## [1.1.3] - 2024-11-07
 
 - Added `url` paramameter
