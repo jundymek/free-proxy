@@ -18,7 +18,7 @@ class FreeProxy:
     working proxy.
     '''
 
-    def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False, elite=False, google=None, https=False, url='https://www.google.com'):
+    def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False, elite=False, google=None, https=False, url='https://www.google.com', as_dict: bool=False):
         self.country_id = country_id
         self.timeout = timeout
         self.random = rand
@@ -27,6 +27,7 @@ class FreeProxy:
         self.google = google
         self.schema = 'https' if https else 'http'
         self.url = url
+        self.as_dict = as_dict
 
     def get_proxy_list(self, repeat):
         try:
@@ -76,14 +77,18 @@ class FreeProxy:
             proxies = {self.schema: f'http://{proxy_address}'}
             try:
                 working_proxy = self.__check_if_proxy_is_working(proxies)
-                if working_proxy:
+                if working_proxy and self.as_dict:
+                    return {f"{working_proxy.split(":")[0]}": f"{working_proxy.split(":")[1][2:]}:{working_proxy.split(":")[2]}"}
+                else: 
                     return working_proxy
+
             except requests.exceptions.RequestException:
                 continue
         if not working_proxy and not repeat:
             if self.country_id is not None:
                 self.country_id = None
             return self.get(repeat=True)
+        
         raise FreeProxyException(
             'There are no working proxies at this time.')
 
