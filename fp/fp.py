@@ -18,9 +18,10 @@ class FreeProxy:
     working proxy.
     '''
 
-    def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False, elite=False, google=None, https=False, url='https://www.google.com'):
+    def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False, elite=False, google=None, https=False, url='https://www.google.com', request_timeout=10):
         self.country_id = country_id
         self.timeout = timeout
+        self.request_timeout = request_timeout
         self.random = rand
         self.anonym = anonym
         self.elite = elite
@@ -30,7 +31,7 @@ class FreeProxy:
 
     def get_proxy_list(self, repeat):
         try:
-            page = requests.get(self.__website(repeat))
+            page = requests.get(self.__website(repeat), timeout=self.request_timeout)
             doc = lh.fromstring(page.content)
         except requests.exceptions.RequestException as e:
             raise FreeProxyException(

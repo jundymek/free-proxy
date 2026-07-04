@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 import lxml.html as lh
+import requests
 
 from fp.errors import FreeProxyException
 from fp.fp import FreeProxy
@@ -155,6 +156,38 @@ class TestProxy(unittest.TestCase):
             pass
         requested_url = mock_get.call_args[0][0]
         self.assertEqual('http://httpbin.org/get', requested_url)
+
+    def test_default_request_timeout(self):
+        proxy = FreeProxy()
+        self.assertEqual(proxy.request_timeout, 10)
+
+    def test_custom_request_timeout(self):
+        proxy = FreeProxy(request_timeout=2)
+        self.assertEqual(proxy.request_timeout, 2)
+
+    @patch('fp.fp.requests.get')
+    def test_get_proxy_list_uses_default_request_timeout(self, mock_get):
+        '''The proxy list scrape should never run without a timeout (#58).'''
+        mock_get.return_value.content = b'<table id="list"></table>'
+        proxy = FreeProxy()
+        proxy.get_proxy_list(repeat=False)
+        self.assertEqual(10, mock_get.call_args.kwargs.get('timeout'))
+
+    @patch('fp.fp.requests.get')
+    def test_get_proxy_list_uses_custom_request_timeout(self, mock_get):
+        mock_get.return_value.content = b'<table id="list"></table>'
+        proxy = FreeProxy(request_timeout=2)
+        proxy.get_proxy_list(repeat=False)
+        self.assertEqual(2, mock_get.call_args.kwargs.get('timeout'))
+
+    @patch('fp.fp.requests.get')
+    def test_get_proxy_list_timeout_raises_free_proxy_exception(self, mock_get):
+        '''A stalled source site should surface as FreeProxyException, not hang.'''
+        mock_get.side_effect = requests.exceptions.Timeout()
+        proxy = FreeProxy()
+        self.assertRaisesRegex(
+            FreeProxyException, 'Request to .* failed',
+            proxy.get_proxy_list, False)
 
     def __tr_elements(self):
         return lh.fromstring(

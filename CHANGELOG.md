@@ -1,3 +1,8 @@
+## [1.2.2] - 2026-07-04
+
+- Fixed `get_proxy_list` hanging indefinitely when a source website stalls — the proxy list request now has a timeout (#58)
+- Added `request_timeout` parameter (default: 10 seconds) to control the proxy list download timeout
+
 ## [1.2.1] - 2026-06-09
 
 - Fixed proxy check failing due to a duplicated URL schema (`http://https://...`), introduced in 1.1.3. This broke `https=True` and custom `url` usage (#52, #43).
