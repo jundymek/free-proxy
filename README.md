@@ -1,6 +1,6 @@
 # Free-proxy
 
-![Version 1.2.1](https://img.shields.io/badge/Version-1.2.1-blue.svg)
+![Version 1.2.2](https://img.shields.io/badge/Version-1.2.2-blue.svg)
 
 ## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
 
@@ -49,6 +49,7 @@ from fp.fp import FreeProxy
 | google     | bool,None | False        | None          |
 | https      | bool      | True         | False         |
 | url        | str       | ''           | google.com    |
+| request_timeout | float > 0 | 5       | 10            |
 - **No parameters**
   Get the first working proxy from <https://www.sslproxies.org/>. If no proxies are working, try again pulling from <https://free-proxy-list.net>
 
@@ -141,9 +142,23 @@ Using custom URL, if test on different endpoint is needed:
 proxy = FreeProxy(url='http://httpbin.org/get').get() 
 ```
 
+- **`request_timeout` parameter**
+  Number of seconds to wait when downloading the proxy list from the source websites (<https://www.sslproxies.org/> etc.).
+  If the website does not respond in that time, the script raises `FreeProxyException` instead of hanging indefinitely.
+  Defaults to `request_timeout=10`. Not to be confused with `timeout`, which is used for checking individual proxies.
+
+```python
+proxy = FreeProxy(request_timeout=5).get()
+```
+
 ## CHANGELOG
 
 ---
+## [1.2.2] - 2026-07-04
+
+- Fixed `get_proxy_list` hanging indefinitely when a source website stalls — the proxy list request now has a timeout (#58)
+- Added `request_timeout` parameter (default: 10 seconds) to control the proxy list download timeout
+
 ## [1.2.1] - 2026-06-09
 
 - Fixed proxy check failing due to a duplicated URL schema (`http://https://...`), introduced in 1.1.3. This broke `https=True` and custom `url` usage (#52, #43).
