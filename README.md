@@ -238,3 +238,7 @@ The authors of this repository are not responsible for any consequences, damages
 [MIT](https://github.com/jundymek/free-proxy/blob/master/LICENSE)
 
 **Free Software!**
+
+## VALIDATE YOUR PROXIES ONLINE
+
+After gathering proxies with socker, validate them instantly at **[proxychecker.dev](https://proxychecker.dev)** — paste your SOCKS4/SOCKS5 list and get alive/dead status, latency, exit country, ISP, and datacenter-vs-residential type with no install required. Free for up to 50 proxies per run.
