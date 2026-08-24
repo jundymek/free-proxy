@@ -1,3 +1,7 @@
+## [1.2.3] - 2026-08-24
+
+- Fixed the proxy check silently bypassing the proxy when the test URL scheme did not match the `https` setting. With default settings (HTTP proxy mapping + HTTPS test URL) `requests` selected no proxy at all, the peername verification then rejected every candidate and `get()` always failed. The proxies mapping now covers both `http` and `https` schemes. Broken since 1.2.1.
+
 ## [1.2.2] - 2026-07-04
 
 - Fixed `get_proxy_list` hanging indefinitely when a source website stalls — the proxy list request now has a timeout (#58)
