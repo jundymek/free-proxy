@@ -1,0 +1,27 @@
+name: Tests
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package with async extra
+        run: pip install -e ".[async]"
+      # Tests that hit real proxy-list sites are skipped on CI (CI=true is set
+      # automatically by GitHub Actions); only deterministic tests run here.
+      - name: Run tests
+        run: python -m unittest test_proxy -v

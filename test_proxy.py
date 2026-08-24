@@ -1,3 +1,4 @@
+import os
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -6,6 +7,8 @@ import requests
 
 from fp.errors import FreeProxyException
 from fp.fp import FreeProxy
+
+SKIP_NETWORK = os.getenv('CI') == 'true'
 
 
 class TestProxy(unittest.TestCase):
@@ -22,6 +25,7 @@ class TestProxy(unittest.TestCase):
         self.assertRaisesRegex(
             FreeProxyException, 'There are no working proxies at this time.', test.get)
 
+    @unittest.skipIf(SKIP_NETWORK, 'hits real proxy-list sites')
     def test_anonym_filter(self):
         test1 = FreeProxy()
         cnt1 = len(test1.get_proxy_list(repeat=False))
@@ -29,6 +33,7 @@ class TestProxy(unittest.TestCase):
         cnt2 = len(test2.get_proxy_list(repeat=False))
         self.assertTrue(cnt2 < cnt1)
 
+    @unittest.skipIf(SKIP_NETWORK, 'hits real proxy-list sites')
     def test_elite_filter(self):
         test1 = FreeProxy()
         cnt1 = len(test1.get_proxy_list(repeat=False))
@@ -36,6 +41,7 @@ class TestProxy(unittest.TestCase):
         cnt2 = len(test2.get_proxy_list(repeat=False))
         self.assertTrue(cnt2 < cnt1)
 
+    @unittest.skipIf(SKIP_NETWORK, 'hits real proxy-list sites')
     def test_google_filter(self):
         test1 = FreeProxy()
         cnt1 = len(test1.get_proxy_list(repeat=False))
@@ -156,6 +162,34 @@ class TestProxy(unittest.TestCase):
             pass
         requested_url = mock_get.call_args[0][0]
         self.assertEqual('http://httpbin.org/get', requested_url)
+
+    @patch('fp.fp.requests.get')
+    def test_check_sends_proxy_for_both_url_schemes(self, mock_get):
+        '''requests picks the proxy by URL scheme; the mapping must cover both,
+        otherwise the default https test URL bypasses an http-keyed proxy.'''
+        mock_get.return_value.__enter__ = lambda s: s
+        mock_get.return_value.__exit__ = MagicMock(return_value=False)
+        mock_get.return_value.raw.connection.sock = None
+        proxy = FreeProxy()
+        proxy.get_proxy_list = MagicMock(return_value=['1.2.3.4:8080'])
+        try:
+            proxy.get()
+        except FreeProxyException:
+            pass
+        proxies = mock_get.call_args.kwargs.get('proxies')
+        self.assertEqual({'http': 'http://1.2.3.4:8080',
+                          'https': 'http://1.2.3.4:8080'}, proxies)
+
+    @patch('fp.fp.requests.get')
+    def test_check_returns_proxy_when_peername_matches(self, mock_get):
+        '''Success path: a proxy whose IP answers the check is returned.'''
+        mock_get.return_value.__enter__ = lambda s: s
+        mock_get.return_value.__exit__ = MagicMock(return_value=False)
+        mock_get.return_value.raw.connection.sock.getpeername.return_value = (
+            '1.2.3.4', 8080)
+        proxy = FreeProxy()
+        proxy.get_proxy_list = MagicMock(return_value=['1.2.3.4:8080'])
+        self.assertEqual('http://1.2.3.4:8080', proxy.get())
 
     def test_default_request_timeout(self):
         proxy = FreeProxy()

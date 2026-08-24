@@ -1,6 +1,6 @@
 # Free-proxy
 
-![Version 1.2.2](https://img.shields.io/badge/Version-1.2.2-blue.svg)
+![Version 1.2.3](https://img.shields.io/badge/Version-1.2.3-blue.svg)
 
 ## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
 
@@ -154,6 +154,10 @@ proxy = FreeProxy(request_timeout=5).get()
 ## CHANGELOG
 
 ---
+## [1.2.3] - 2026-08-24
+
+- Fixed the proxy check silently bypassing the proxy when the test URL scheme did not match the `https` setting. With default settings (HTTP proxy mapping + HTTPS test URL) `requests` selected no proxy at all, the peername verification then rejected every candidate and `get()` always failed. The proxies mapping now covers both `http` and `https` schemes. Broken since 1.2.1.
+
 ## [1.2.2] - 2026-07-04
 
 - Fixed `get_proxy_list` hanging indefinitely when a source website stalls — the proxy list request now has a timeout (#58)

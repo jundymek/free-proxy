@@ -74,7 +74,11 @@ class FreeProxy:
             random.shuffle(proxy_list)
         working_proxy = None
         for proxy_address in proxy_list:
-            proxies = {self.schema: f'http://{proxy_address}'}
+            # requests selects the proxy by the URL scheme, so the mapping
+            # must cover both -- otherwise e.g. an https test URL with the
+            # default http schema bypasses the proxy entirely.
+            proxies = {'http': f'http://{proxy_address}',
+                       'https': f'http://{proxy_address}'}
             try:
                 working_proxy = self.__check_if_proxy_is_working(proxies)
                 if working_proxy:
