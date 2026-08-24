@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name='free_proxy',
-    version='1.2.3',
+    version='1.3.0',
     author="jundymek",
     author_email="jundymek@gmail.com",
     description="Proxy scraper for further use",
@@ -17,6 +17,9 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.8',
-    install_requires=['lxml>=5.0,<7', 'requests>=2.31,<3']
+    python_requires='>=3.9',
+    install_requires=['lxml>=5.0,<7', 'requests>=2.31,<3'],
+    extras_require={
+        'async': ['aiohttp>=3.8,<4'],
+    }
 )

@@ -1,6 +1,6 @@
 # Free-proxy
 
-![Version 1.2.3](https://img.shields.io/badge/Version-1.2.3-blue.svg)
+![Version 1.3.0](https://img.shields.io/badge/Version-1.3.0-blue.svg)
 
 ## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
 
@@ -17,14 +17,21 @@ Returns proxy as string:
 
 ### Requirements
 
-- [Python 3](https://www.python.org/downloads/)
+- [Python 3](https://www.python.org/downloads/) (3.9+)
 - [Requests library](https://github.com/psf/requests)
 - [Lxml library](https://github.com/lxml/lxml)
+- [Aiohttp library](https://github.com/aio-libs/aiohttp) (optional, only for async usage)
 
 ### Installation
 
 ```python
 pip install free-proxy
+```
+
+With async support (installs aiohttp):
+
+```python
+pip install "free-proxy[async]"
 ```
 
 [![asciicast](https://asciinema.org/a/Xolpn3eD2tyJl8Y8HE9zolgex.svg)](https://asciinema.org/a/Xolpn3eD2tyJl8Y8HE9zolgex)
@@ -151,12 +158,54 @@ proxy = FreeProxy(url='http://httpbin.org/get').get()
 proxy = FreeProxy(request_timeout=5).get()
 ```
 
+## Async usage
+
+`AsyncFreeProxy` is an asyncio variant of `FreeProxy`. It accepts the same options,
+but checks proxies **concurrently** (up to `max_concurrent` at a time, default 20)
+and returns the first working one, which is usually much faster than the
+synchronous version. Remaining checks are cancelled as soon as a winner is found.
+
+Async support requires the `async` extra:
+
+```python
+pip install "free-proxy[async]"
+```
+
+In a plain script, run it with `asyncio.run`:
+
+```python
+import asyncio
+
+from fp.fp import AsyncFreeProxy
+
+proxy = asyncio.run(AsyncFreeProxy().get())
+```
+
+Inside your own async application (or in a Jupyter cell), just await it:
+
+```python
+proxy = await AsyncFreeProxy(country_id=['US'], max_concurrent=50).get()
+```
+
+- **`max_concurrent` parameter** (`AsyncFreeProxy` only)
+  Maximum number of proxies checked at the same time. Defaults to `max_concurrent=20`.
+  Raise it for faster scanning on a strong connection, lower it to be gentler on
+  your network and the test URL.
+
 ## CHANGELOG
 
 ---
+## [1.3.0] - 2026-08-24
+
+- Added `AsyncFreeProxy` — an asyncio variant of `FreeProxy` that checks proxies concurrently and returns the first working one (based on the idea from #39, thanks @NerdzzyDev)
+- Async support is an optional extra: `pip install "free-proxy[async]"` (installs aiohttp)
+- Added `max_concurrent` parameter to `AsyncFreeProxy` (default: 20) limiting how many proxies are checked at once
+- Raised minimum Python version to 3.9
+
 ## [1.2.3] - 2026-08-24
 
-- Fixed the proxy check silently bypassing the proxy when the test URL scheme did not match the `https` setting. With default settings (HTTP proxy mapping + HTTPS test URL) `requests` selected no proxy at all, the peername verification then rejected every candidate and `get()` always failed. The proxies mapping now covers both `http` and `https` schemes. Broken since 1.2.1.
+- Fixed the proxy check silently bypassing the proxy when the test URL scheme did not match the `https` setting. With default settings (HTTP proxy mapping + HTTPS test URL) `requests` selected no proxy at all, the peername verification then rejected every candidate and `get()` always failed. The proxies mapping now covers both `http` and `https` schemes. Broken since 1.2.1. (#61)
+- Added a CI workflow running the test suite on Python 3.9–3.13
 
 ## [1.2.2] - 2026-07-04
 

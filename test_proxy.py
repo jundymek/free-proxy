@@ -1,12 +1,16 @@
+import asyncio
 import os
+import time
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import lxml.html as lh
 import requests
 
+import aiohttp
+
 from fp.errors import FreeProxyException
-from fp.fp import FreeProxy
+from fp.fp import AsyncFreeProxy, FreeProxy
 
 SKIP_NETWORK = os.getenv('CI') == 'true'
 
@@ -55,74 +59,74 @@ class TestProxy(unittest.TestCase):
     def test_criteria_defaults(self):
         '''Default settings: anonym = False, elite = False, google = None'''
         subject = FreeProxy()
-        actual_0 = subject._FreeProxy__criteria(self.__tr_elements()[0])
-        actual_1 = subject._FreeProxy__criteria(self.__tr_elements()[1])
+        actual_0 = subject._criteria(self.__tr_elements()[0])
+        actual_1 = subject._criteria(self.__tr_elements()[1])
         self.assertEqual(True, actual_0)
         self.assertEqual(True, actual_1)
 
     def test_criteria_anonym_true(self):
         subject = FreeProxy(anonym=True)
-        actual_0 = subject._FreeProxy__criteria(self.__tr_elements()[0])
-        actual_1 = subject._FreeProxy__criteria(self.__tr_elements()[1])
+        actual_0 = subject._criteria(self.__tr_elements()[0])
+        actual_1 = subject._criteria(self.__tr_elements()[1])
         self.assertEqual(True, actual_0)
         self.assertEqual(False, actual_1)
 
     def test_criteria_elite_true(self):
         subject = FreeProxy(elite=True)
-        actual_0 = subject._FreeProxy__criteria(self.__tr_elements()[0])
-        actual_1 = subject._FreeProxy__criteria(self.__tr_elements()[1])
+        actual_0 = subject._criteria(self.__tr_elements()[0])
+        actual_1 = subject._criteria(self.__tr_elements()[1])
         self.assertEqual(False, actual_0)
         self.assertEqual(True, actual_1)
 
     def test_criteria_google_false(self):
         subject = FreeProxy(google=False)
-        actual_0 = subject._FreeProxy__criteria(self.__tr_elements()[0])
-        actual_1 = subject._FreeProxy__criteria(self.__tr_elements()[1])
+        actual_0 = subject._criteria(self.__tr_elements()[0])
+        actual_1 = subject._criteria(self.__tr_elements()[1])
         self.assertEqual(True, actual_0)
         self.assertEqual(False, actual_1)
 
     def test_criteria_google_true(self):
         subject = FreeProxy(google=True)
-        actual_0 = subject._FreeProxy__criteria(self.__tr_elements()[0])
-        actual_1 = subject._FreeProxy__criteria(self.__tr_elements()[1])
+        actual_0 = subject._criteria(self.__tr_elements()[0])
+        actual_1 = subject._criteria(self.__tr_elements()[1])
         self.assertEqual(False, actual_0)
         self.assertEqual(True, actual_1)
 
     def test_criteria_https_true(self):
         subject = FreeProxy(https=True)
-        actual_0 = subject._FreeProxy__criteria(self.__tr_elements()[0])
-        actual_1 = subject._FreeProxy__criteria(self.__tr_elements()[1])
+        actual_0 = subject._criteria(self.__tr_elements()[0])
+        actual_1 = subject._criteria(self.__tr_elements()[1])
         self.assertEqual(True, actual_0)
         self.assertEqual(False, actual_1)
 
     def test_country_id_us_page_first_loop(self):
         subject = FreeProxy(country_id=['US'])
-        actual = subject._FreeProxy__website(repeat=False)
+        actual = subject._website(repeat=False)
         self.assertEqual('https://www.us-proxy.org', actual)
 
     def test_country_id_us_page_second_loop(self):
         subject = FreeProxy(country_id=['US'])
-        actual = subject._FreeProxy__website(repeat=True)
+        actual = subject._website(repeat=True)
         self.assertEqual('https://free-proxy-list.net', actual)
 
     def test_country_id_gb_page_first_loop(self):
         subject = FreeProxy(country_id=['GB'])
-        actual = subject._FreeProxy__website(repeat=False)
+        actual = subject._website(repeat=False)
         self.assertEqual('https://free-proxy-list.net/uk-proxy.html', actual)
 
     def test_country_id_gb_page_second_loop(self):
         subject = FreeProxy(country_id=['GB'])
-        actual = subject._FreeProxy__website(repeat=True)
+        actual = subject._website(repeat=True)
         self.assertEqual('https://free-proxy-list.net', actual)
 
     def default_page_first_loop(self):
         subject = FreeProxy()
-        actual = subject._FreeProxy__website(repeat=False)
+        actual = subject._website(repeat=False)
         self.assertEqual('https://www.sslproxies.org', actual)
 
     def default_page_second_loop(self):
         subject = FreeProxy()
-        actual = subject._FreeProxy__website(repeat=True)
+        actual = subject._website(repeat=True)
         self.assertEqual('https://free-proxy-list.net', actual)
 
     def test_default_url(self):
@@ -233,6 +237,123 @@ class TestProxy(unittest.TestCase):
             '<td class="hm">yes</td><td class="hx">no</td><td class="hm">2 mins ago</td>'
             '</tr>'
         ).xpath('//tr')
+
+
+class TestAsyncProxy(unittest.IsolatedAsyncioTestCase):
+
+    async def test_empty_proxy_list(self):
+        test = AsyncFreeProxy()
+        test.get_proxy_list = AsyncMock(return_value=[])
+        with self.assertRaisesRegex(FreeProxyException,
+                                    'There are no working proxies at this time.'):
+            await test.get()
+
+    async def test_invalid_proxy(self):
+        test = AsyncFreeProxy()
+        test.get_proxy_list = AsyncMock(return_value=['111.111.11:2222'])
+        with self.assertRaisesRegex(FreeProxyException,
+                                    'There are no working proxies at this time.'):
+            await test.get()
+
+    async def test_first_working_proxy_wins_and_losers_are_cancelled(self):
+        test = AsyncFreeProxy()
+        test.get_proxy_list = AsyncMock(
+            return_value=['1.1.1.1:80', '2.2.2.2:80', '3.3.3.3:80'])
+
+        async def fake_check(session, semaphore, proxy_address):
+            if proxy_address == '2.2.2.2:80':
+                await asyncio.sleep(0.05)
+                return 'http://2.2.2.2:80'
+            await asyncio.sleep(10)
+            return None
+
+        test._check_if_proxy_is_working = fake_check
+        start = time.perf_counter()
+        result = await test.get()
+        elapsed = time.perf_counter() - start
+        self.assertEqual('http://2.2.2.2:80', result)
+        # Slow losers sleep 10s; an early return without cancellation
+        # (or a gather-style wait-for-all) would blow way past this.
+        self.assertLess(elapsed, 5)
+
+    async def test_semaphore_limits_concurrency(self):
+        test = AsyncFreeProxy(max_concurrent=2)
+        test.get_proxy_list = AsyncMock(
+            return_value=[f'1.1.1.{i}:80' for i in range(6)])
+        running = 0
+        max_running = 0
+
+        async def fake_check(session, semaphore, proxy_address):
+            nonlocal running, max_running
+            async with semaphore:
+                running += 1
+                max_running = max(max_running, running)
+                await asyncio.sleep(0.01)
+                running -= 1
+                return None
+
+        test._check_if_proxy_is_working = fake_check
+        with self.assertRaises(FreeProxyException):
+            await test.get()
+        self.assertEqual(2, max_running)
+
+    def test_invalid_max_concurrent_raises(self):
+        for value in (0, -5, 2.5):
+            with self.assertRaisesRegex(ValueError, 'positive integer'):
+                AsyncFreeProxy(max_concurrent=value)
+
+    def _mock_session(self, response):
+        session = MagicMock()
+        session.get.return_value.__aenter__ = AsyncMock(return_value=response)
+        session.get.return_value.__aexit__ = AsyncMock(return_value=False)
+        return session
+
+    async def test_check_returns_proxy_when_peername_matches(self):
+        response = MagicMock()
+        response.connection.transport.get_extra_info.return_value = ('1.2.3.4', 8080)
+        test = AsyncFreeProxy()
+        result = await test._check_if_proxy_is_working(
+            self._mock_session(response), asyncio.Semaphore(1), '1.2.3.4:8080')
+        self.assertEqual('http://1.2.3.4:8080', result)
+
+    async def test_check_rejects_proxy_when_peername_differs(self):
+        response = MagicMock()
+        response.connection.transport.get_extra_info.return_value = ('9.9.9.9', 443)
+        test = AsyncFreeProxy()
+        result = await test._check_if_proxy_is_working(
+            self._mock_session(response), asyncio.Semaphore(1), '1.2.3.4:8080')
+        self.assertIsNone(result)
+
+    async def test_check_treats_client_error_as_failed_candidate(self):
+        session = MagicMock()
+        session.get.side_effect = aiohttp.ClientError()
+        test = AsyncFreeProxy()
+        result = await test._check_if_proxy_is_working(
+            session, asyncio.Semaphore(1), '1.2.3.4:8080')
+        self.assertIsNone(result)
+
+    async def test_fallback_round_clears_country_and_repeats(self):
+        test = AsyncFreeProxy(country_id=['US'])
+        test.get_proxy_list = AsyncMock(side_effect=[[], ['1.2.3.4:8080']])
+        test._find_working_proxy = AsyncMock(
+            side_effect=[None, 'http://1.2.3.4:8080'])
+        result = await test.get()
+        self.assertEqual('http://1.2.3.4:8080', result)
+        self.assertIsNone(test.country_id)
+        test.get_proxy_list.assert_awaited_with(True)
+
+    def test_missing_aiohttp_raises_with_install_hint(self):
+        with patch('fp.fp.aiohttp', None):
+            with self.assertRaisesRegex(FreeProxyException, r'free-proxy\[async\]'):
+                AsyncFreeProxy()
+
+    def test_constructor_params_match_sync(self):
+        proxy = AsyncFreeProxy(country_id=['US'], timeout=1.5,
+                               url='http://httpbin.org/get', max_concurrent=5)
+        self.assertEqual(['US'], proxy.country_id)
+        self.assertEqual(1.5, proxy.timeout)
+        self.assertEqual('http://httpbin.org/get', proxy.url)
+        self.assertEqual(5, proxy.max_concurrent)
 
 
 if __name__ == '__main__':
