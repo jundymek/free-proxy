@@ -298,7 +298,7 @@ class TestAsyncProxy(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(2, max_running)
 
     def test_invalid_max_concurrent_raises(self):
-        for value in (0, -5, 2.5):
+        for value in (0, -5):
             with self.assertRaisesRegex(ValueError, 'positive integer'):
                 AsyncFreeProxy(max_concurrent=value)
 

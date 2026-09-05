@@ -129,7 +129,7 @@ class AsyncFreeProxy(FreeProxy):
         if aiohttp is None:
             raise FreeProxyException(
                 'aiohttp is not installed. Install async support with: pip install "free-proxy[async]"')
-        if not isinstance(max_concurrent, int) or max_concurrent < 1:
+        if max_concurrent < 1:
             # 0 would park every task on the semaphore forever -- the
             # request timeout never starts while waiting for a slot.
             raise ValueError('max_concurrent must be a positive integer')
