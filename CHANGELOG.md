@@ -1,4 +1,4 @@
-## [1.3.0] - 2026-08-24
+## [1.3.0] - 2026-09-06
 
 - Added `AsyncFreeProxy` — an asyncio variant of `FreeProxy` that checks proxies concurrently and returns the first working one (based on the idea from #39, thanks @NerdzzyDev)
 - Async support is an optional extra: `pip install "free-proxy[async]"` (installs aiohttp)
