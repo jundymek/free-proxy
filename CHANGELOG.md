@@ -1,3 +1,9 @@
+## [1.3.1] - 2026-11-16
+
+- Fixed proxy list parsing after the source sites changed their table layout: proxies came back as `ip:port:HTTP`, which made every check fail and `get()` always raise "There are no working proxies", and the `elite`, `anonym` and `https` filters returned nothing. Columns are now looked up by header name, and a layout without the expected columns raises `FreeProxyException` naming the missing columns instead of silently returning bad addresses (#64)
+- SOCKS proxies from the source lists are skipped: they cannot be used through an `http://` proxy URL
+- Deprecated the `google` parameter: the source sites no longer publish this information, so it is ignored and emits a `DeprecationWarning`. It will be removed in the next major release
+
 ## [1.3.0] - 2026-09-06
 
 - Added `AsyncFreeProxy` — an asyncio variant of `FreeProxy` that checks proxies concurrently and returns the first working one (based on the idea from #39, thanks @NerdzzyDev)

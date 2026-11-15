@@ -1,10 +1,11 @@
 import asyncio
+import inspect
 import os
 import time
 import unittest
+import warnings
 from unittest.mock import AsyncMock, MagicMock, patch
 
-import lxml.html as lh
 import requests
 
 import aiohttp
@@ -13,6 +14,32 @@ from fp.errors import FreeProxyException
 from fp.fp import AsyncFreeProxy, FreeProxy
 
 SKIP_NETWORK = os.getenv('CI') == 'true'
+
+
+def proxy_table(header, rows):
+    '''Builds a proxy list page shaped like free-proxy-list.net.'''
+    head = ''.join(f'<th>{name}</th>' for name in header)
+    body = ''.join('<tr>' + ''.join(f'<td>{cell}</td>' for cell in row) + '</tr>'
+                   for row in rows)
+    return (f'<html><body><section id="list"><table>'
+            f'<thead><tr>{head}</tr></thead><tbody>{body}</tbody>'
+            f'</table></section></body></html>').encode()
+
+
+# Layout used by all source sites since November 2026 (issue #64).
+PROXY_LIST_PAGE = proxy_table(
+    ['IP:Port', 'Protocol', 'Code', 'Country', 'Anonymity', 'Https', 'Last Checked'],
+    [
+        ['111.111.111.111:8080', 'HTTP', 'CN', 'China', 'Anonymous', 'Yes', '1 min ago'],
+        ['122.122.122.122:3128', 'HTTP', 'NL', 'Netherlands', 'Elite', 'No', '2 mins ago'],
+        ['133.133.133.133:1080', 'SOCKS4', 'US', 'United States', 'Elite', 'Yes', '3 mins ago'],
+        ['144.144.144.144:80', 'HTTP', 'US', 'United States', 'Transparent', 'No', '4 mins ago'],
+    ])
+
+# Layout used before November 2026: separate IP and port columns.
+OLD_PROXY_LIST_PAGE = proxy_table(
+    ['IP Address', 'Port', 'Code', 'Country', 'Anonymity', 'Google', 'Https', 'Last Checked'],
+    [['111.111.111.111', '8080', 'CN', 'China', 'anonymous', 'no', 'yes', '1 min ago']])
 
 
 class TestProxy(unittest.TestCase):
@@ -44,60 +71,6 @@ class TestProxy(unittest.TestCase):
         test2 = FreeProxy(elite=True)
         cnt2 = len(test2.get_proxy_list(repeat=False))
         self.assertTrue(cnt2 < cnt1)
-
-    @unittest.skipIf(SKIP_NETWORK, 'hits real proxy-list sites')
-    def test_google_filter(self):
-        test1 = FreeProxy()
-        cnt1 = len(test1.get_proxy_list(repeat=False))
-        test2 = FreeProxy(google=True)
-        test3 = FreeProxy(google=False)
-        cnt2 = len(test2.get_proxy_list(repeat=False))
-        cnt3 = len(test3.get_proxy_list(repeat=False))
-        self.assertTrue(cnt2 < cnt1)
-        self.assertTrue(cnt3 < cnt1)
-
-    def test_criteria_defaults(self):
-        '''Default settings: anonym = False, elite = False, google = None'''
-        subject = FreeProxy()
-        actual_0 = subject._criteria(self.__tr_elements()[0])
-        actual_1 = subject._criteria(self.__tr_elements()[1])
-        self.assertEqual(True, actual_0)
-        self.assertEqual(True, actual_1)
-
-    def test_criteria_anonym_true(self):
-        subject = FreeProxy(anonym=True)
-        actual_0 = subject._criteria(self.__tr_elements()[0])
-        actual_1 = subject._criteria(self.__tr_elements()[1])
-        self.assertEqual(True, actual_0)
-        self.assertEqual(False, actual_1)
-
-    def test_criteria_elite_true(self):
-        subject = FreeProxy(elite=True)
-        actual_0 = subject._criteria(self.__tr_elements()[0])
-        actual_1 = subject._criteria(self.__tr_elements()[1])
-        self.assertEqual(False, actual_0)
-        self.assertEqual(True, actual_1)
-
-    def test_criteria_google_false(self):
-        subject = FreeProxy(google=False)
-        actual_0 = subject._criteria(self.__tr_elements()[0])
-        actual_1 = subject._criteria(self.__tr_elements()[1])
-        self.assertEqual(True, actual_0)
-        self.assertEqual(False, actual_1)
-
-    def test_criteria_google_true(self):
-        subject = FreeProxy(google=True)
-        actual_0 = subject._criteria(self.__tr_elements()[0])
-        actual_1 = subject._criteria(self.__tr_elements()[1])
-        self.assertEqual(False, actual_0)
-        self.assertEqual(True, actual_1)
-
-    def test_criteria_https_true(self):
-        subject = FreeProxy(https=True)
-        actual_0 = subject._criteria(self.__tr_elements()[0])
-        actual_1 = subject._criteria(self.__tr_elements()[1])
-        self.assertEqual(True, actual_0)
-        self.assertEqual(False, actual_1)
 
     def test_country_id_us_page_first_loop(self):
         subject = FreeProxy(country_id=['US'])
@@ -206,14 +179,14 @@ class TestProxy(unittest.TestCase):
     @patch('fp.fp.requests.get')
     def test_get_proxy_list_uses_default_request_timeout(self, mock_get):
         '''The proxy list scrape should never run without a timeout (#58).'''
-        mock_get.return_value.content = b'<table id="list"></table>'
+        mock_get.return_value.content = PROXY_LIST_PAGE
         proxy = FreeProxy()
         proxy.get_proxy_list(repeat=False)
         self.assertEqual(10, mock_get.call_args.kwargs.get('timeout'))
 
     @patch('fp.fp.requests.get')
     def test_get_proxy_list_uses_custom_request_timeout(self, mock_get):
-        mock_get.return_value.content = b'<table id="list"></table>'
+        mock_get.return_value.content = PROXY_LIST_PAGE
         proxy = FreeProxy(request_timeout=2)
         proxy.get_proxy_list(repeat=False)
         self.assertEqual(2, mock_get.call_args.kwargs.get('timeout'))
@@ -227,16 +200,110 @@ class TestProxy(unittest.TestCase):
             FreeProxyException, 'Request to .* failed',
             proxy.get_proxy_list, False)
 
-    def __tr_elements(self):
-        return lh.fromstring(
-            '<tr>'
-            '<td>111.111.111.111</td><td>8080</td><td>CN</td><td class="hm">China</td><td>anonymous</td>'
-            '<td class="hm">no</td><td class="hx">yes</td><td class="hm">1 min ago</td>'
-            '</tr> <tr>'
-            '<td>222.222.222.222</td><td>8080</td><td>NL</td><td class="hm">Netherlands</td><td>elite proxy</td>'
-            '<td class="hm">yes</td><td class="hx">no</td><td class="hm">2 mins ago</td>'
-            '</tr>'
-        ).xpath('//tr')
+
+class TestParseProxyList(unittest.TestCase):
+
+    def parse(self, **kwargs):
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', DeprecationWarning)
+            subject = FreeProxy(**kwargs)
+        return subject._parse_proxy_list(PROXY_LIST_PAGE)
+
+    def test_defaults_return_ip_port_of_http_proxies(self):
+        self.assertEqual(
+            ['111.111.111.111:8080', '122.122.122.122:3128', '144.144.144.144:80'],
+            self.parse())
+
+    def test_socks_proxies_are_skipped(self):
+        '''SOCKS proxies cannot be used through an http:// proxy URL.'''
+        socks = [p for p in self.parse() if p.startswith('133.133.133.133')]
+        self.assertEqual([], socks)
+
+    def test_anonym_returns_only_anonymous(self):
+        self.assertEqual(['111.111.111.111:8080'], self.parse(anonym=True))
+
+    def test_elite_returns_only_elite(self):
+        self.assertEqual(['122.122.122.122:3128'], self.parse(elite=True))
+
+    def test_elite_overrides_anonym(self):
+        self.assertEqual(['122.122.122.122:3128'], self.parse(anonym=True, elite=True))
+
+    def test_https_returns_only_https_capable(self):
+        self.assertEqual(['111.111.111.111:8080'], self.parse(https=True))
+
+    def test_country_id_filters_by_code(self):
+        self.assertEqual(['144.144.144.144:80'], self.parse(country_id=['US']))
+
+    def test_google_is_ignored(self):
+        '''The source sites no longer publish the Google column.'''
+        self.assertEqual(self.parse(), self.parse(google=True))
+        self.assertEqual(self.parse(), self.parse(google=False))
+
+    def test_reordered_columns_are_matched_by_name(self):
+        page = proxy_table(
+            ['Https', 'Anonymity', 'Code', 'Protocol', 'IP:Port'],
+            [['Yes', 'Elite', 'DE', 'HTTP', '155.155.155.155:8080']])
+        self.assertEqual(['155.155.155.155:8080'],
+                         FreeProxy(elite=True, https=True)._parse_proxy_list(page))
+
+    def test_page_without_proxy_table_returns_empty_list(self):
+        '''No table (e.g. a maintenance page) is not a layout change: an empty
+        list lets get() fall back to the other source.'''
+        self.assertEqual([], FreeProxy()._parse_proxy_list(b'<html><body>Maintenance</body></html>'))
+
+    def test_get_falls_back_when_first_page_has_no_table(self):
+        pages = {'https://www.sslproxies.org': b'<html><body>Maintenance</body></html>',
+                 'https://free-proxy-list.net': PROXY_LIST_PAGE}
+        test = FreeProxy()
+        with patch('fp.fp.requests.get') as mock_get:
+            mock_get.side_effect = lambda url, **kwargs: MagicMock(content=pages[url])
+            proxies = [test.get_proxy_list(repeat) for repeat in (False, True)]
+        self.assertEqual([], proxies[0])
+        self.assertEqual(3, len(proxies[1]))
+
+    def test_unknown_layout_raises_with_missing_columns(self):
+        '''A layout change must fail loudly, not return malformed addresses.'''
+        with self.assertRaisesRegex(FreeProxyException, 'missing columns: .*ip:port'):
+            FreeProxy()._parse_proxy_list(OLD_PROXY_LIST_PAGE)
+
+    @unittest.skipIf(SKIP_NETWORK, 'hits real proxy-list sites')
+    def test_live_list_has_ip_port_format(self):
+        proxies = FreeProxy().get_proxy_list(repeat=False)
+        self.assertTrue(proxies)
+        for proxy in proxies:
+            self.assertRegex(proxy, r'^\d{1,3}(\.\d{1,3}){3}:\d+$')
+
+
+class TestGoogleDeprecation(unittest.TestCase):
+
+    def assert_warns_at_caller(self, cls, **kwargs):
+        with self.assertWarnsRegex(DeprecationWarning, 'google') as cm:
+            caller_line = inspect.currentframe().f_lineno + 1
+            cls(**kwargs)
+        # Pointing at the caller makes Python show it by default (PEP 565).
+        self.assertEqual((__file__, caller_line), (cm.filename, cm.lineno))
+
+    def test_google_true_warns(self):
+        self.assert_warns_at_caller(FreeProxy, google=True)
+
+    def test_google_false_warns(self):
+        self.assert_warns_at_caller(FreeProxy, google=False)
+
+    def test_async_google_warns_at_caller(self):
+        self.assert_warns_at_caller(AsyncFreeProxy, google=True)
+
+    def test_google_none_does_not_warn(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            FreeProxy()
+            AsyncFreeProxy()
+        self.assertEqual([], caught)
+
+    def test_google_value_is_kept(self):
+        '''Existing code reading the attribute keeps working.'''
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', DeprecationWarning)
+            self.assertTrue(FreeProxy(google=True).google)
 
 
 class TestAsyncProxy(unittest.IsolatedAsyncioTestCase):

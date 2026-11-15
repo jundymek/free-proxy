@@ -53,7 +53,7 @@ from fp.fp import FreeProxy
 | rand       | bool      | True         | False         |
 | anonym     | bool      | True         | False         |
 | elite      | bool      | True         | False         |
-| google     | bool,None | False        | None          |
+| google     | bool,None | deprecated   | None          |
 | https      | bool      | True         | False         |
 | url        | str       | ''           | google.com    |
 | request_timeout | float > 0 | 5       | 10            |
@@ -102,7 +102,7 @@ proxy = FreeProxy(anonym=True).get()
 ```
 
 - **`elite` parameter**
-  Return only proxies marked as 'elite proxy'. Defaults to `elite=False`.
+  Return only proxies marked as 'elite'. Defaults to `elite=False`.
 
 ```python
 proxy = FreeProxy(elite=True).get()
@@ -110,12 +110,8 @@ proxy = FreeProxy(elite=True).get()
 
 Please note: elite proxies are always anonymous. If you set `elite=True`, you will also be eliminating any non-anonymous proxies.
 
-- **`google` parameter**
-  If `True` it will only return proxies marked as "google". If `False`, it will not return proxies marked as "google". Defaults to `google=None`, which returns all proxies.
-
-```python
-proxy = FreeProxy(google=True).get()
-```
+- **`google` parameter** (deprecated)
+  Ignored since 1.3.1: the source sites no longer publish which proxies work with Google. Passing it emits a `DeprecationWarning`; it will be removed in the next major release.
 
 - **`https` parameter**
   If `True` it will only return proxies marked as HTTPS. Defaults to `https=False` - i.e. HTTP proxy (for HTTP websites).
@@ -195,6 +191,12 @@ proxy = await AsyncFreeProxy(country_id=['US'], max_concurrent=50).get()
 ## CHANGELOG
 
 ---
+## [1.3.1] - 2026-11-16
+
+- Fixed proxy list parsing after the source sites changed their table layout: proxies came back as `ip:port:HTTP`, which made every check fail and `get()` always raise "There are no working proxies", and the `elite`, `anonym` and `https` filters returned nothing. Columns are now looked up by header name, and a layout without the expected columns raises `FreeProxyException` naming the missing columns instead of silently returning bad addresses (#64)
+- SOCKS proxies from the source lists are skipped: they cannot be used through an `http://` proxy URL
+- Deprecated the `google` parameter: the source sites no longer publish this information, so it is ignored and emits a `DeprecationWarning`. It will be removed in the next major release
+
 ## [1.3.0] - 2026-09-06
 
 - Added `AsyncFreeProxy` — an asyncio variant of `FreeProxy` that checks proxies concurrently and returns the first working one (based on the idea from #39, thanks @NerdzzyDev)
