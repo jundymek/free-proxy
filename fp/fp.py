@@ -212,6 +212,8 @@ class AsyncFreeProxy(FreeProxy):
                     peername = connection.transport.get_extra_info('peername')
                     if peername and peername[0] == proxy_address.split(':')[0]:
                         return f'http://{proxy_address}'
-            except (aiohttp.ClientError, asyncio.TimeoutError, OSError):
+            except Exception:
+                # A broken proxy can trigger anything, e.g. AttributeError
+                # in aiohttp 3.8.x. CancelledError is not an Exception.
                 pass
             return None

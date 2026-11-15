@@ -194,6 +194,7 @@ proxy = await AsyncFreeProxy(country_id=['US'], max_concurrent=50).get()
 ## [1.3.1] - 2026-11-16
 
 - Fixed proxy list parsing after the source sites changed their table layout: proxies came back as `ip:port:HTTP`, which made every check fail and `get()` always raise "There are no working proxies", and the `elite`, `anonym` and `https` filters returned nothing. Columns are now looked up by header name, and a layout without the expected columns raises `FreeProxyException` naming the missing columns instead of silently returning bad addresses (#64)
+- Fixed `AsyncFreeProxy.get()` crashing with `AttributeError` on aiohttp 3.8.x when a proxy dropped the connection during the TLS handshake. Any error while checking a single proxy now just marks that proxy as not working
 - SOCKS proxies from the source lists are skipped: they cannot be used through an `http://` proxy URL
 - Deprecated the `google` parameter: the source sites no longer publish this information, so it is ignored and emits a `DeprecationWarning`. It will be removed in the next major release
 

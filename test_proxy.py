@@ -399,6 +399,27 @@ class TestAsyncProxy(unittest.IsolatedAsyncioTestCase):
             session, asyncio.Semaphore(1), '1.2.3.4:8080')
         self.assertIsNone(result)
 
+    async def test_check_treats_unexpected_error_as_failed_candidate(self):
+        '''aiohttp 3.8.x raises AttributeError when a proxy drops the
+        connection during the TLS handshake; one bad proxy must not abort
+        the whole search.'''
+        session = MagicMock()
+        session.get.side_effect = AttributeError(
+            "'NoneType' object has no attribute 'get_extra_info'")
+        test = AsyncFreeProxy()
+        result = await test._check_if_proxy_is_working(
+            session, asyncio.Semaphore(1), '1.2.3.4:8080')
+        self.assertIsNone(result)
+
+    async def test_check_does_not_swallow_cancellation(self):
+        '''Losing checks are cancelled once a winner is found.'''
+        session = MagicMock()
+        session.get.side_effect = asyncio.CancelledError()
+        test = AsyncFreeProxy()
+        with self.assertRaises(asyncio.CancelledError):
+            await test._check_if_proxy_is_working(
+                session, asyncio.Semaphore(1), '1.2.3.4:8080')
+
     async def test_fallback_round_clears_country_and_repeats(self):
         test = AsyncFreeProxy(country_id=['US'])
         test.get_proxy_list = AsyncMock(side_effect=[[], ['1.2.3.4:8080']])
