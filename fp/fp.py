@@ -18,9 +18,8 @@ except ImportError:
 
 class FreeProxy:
     '''
-    FreeProxy class scrapes proxies from <https://www.sslproxies.org/>,
-    <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>,
-    and <https://free-proxy-list.net> and checks if proxy is working.
+    FreeProxy class scrapes proxies from the SSL, US, UK and main lists on
+    <https://free-proxy-list.net> and checks if proxy is working.
     There is possibility to filter proxies by country and acceptable timeout.
     You can also randomize list of proxies from where script would get first
     working proxy.
@@ -79,11 +78,11 @@ class FreeProxy:
         if repeat:
             return "https://free-proxy-list.net"
         elif self.country_id == ['US']:
-            return 'https://www.us-proxy.org'
+            return 'https://free-proxy-list.net/us-proxy.html'
         elif self.country_id == ['GB']:
             return 'https://free-proxy-list.net/uk-proxy.html'
         else:
-            return 'https://www.sslproxies.org'
+            return 'https://free-proxy-list.net/ssl-proxy.html'
 
     def _criteria(self, row):
         anonymity = row['anonymity'].lower()

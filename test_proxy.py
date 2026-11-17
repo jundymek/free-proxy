@@ -75,7 +75,7 @@ class TestProxy(unittest.TestCase):
     def test_country_id_us_page_first_loop(self):
         subject = FreeProxy(country_id=['US'])
         actual = subject._website(repeat=False)
-        self.assertEqual('https://www.us-proxy.org', actual)
+        self.assertEqual('https://free-proxy-list.net/us-proxy.html', actual)
 
     def test_country_id_us_page_second_loop(self):
         subject = FreeProxy(country_id=['US'])
@@ -92,12 +92,12 @@ class TestProxy(unittest.TestCase):
         actual = subject._website(repeat=True)
         self.assertEqual('https://free-proxy-list.net', actual)
 
-    def default_page_first_loop(self):
+    def test_default_page_first_loop(self):
         subject = FreeProxy()
         actual = subject._website(repeat=False)
-        self.assertEqual('https://www.sslproxies.org', actual)
+        self.assertEqual('https://free-proxy-list.net/ssl-proxy.html', actual)
 
-    def default_page_second_loop(self):
+    def test_default_page_second_loop(self):
         subject = FreeProxy()
         actual = subject._website(repeat=True)
         self.assertEqual('https://free-proxy-list.net', actual)
@@ -252,7 +252,7 @@ class TestParseProxyList(unittest.TestCase):
         self.assertEqual([], FreeProxy()._parse_proxy_list(b'<html><body>Maintenance</body></html>'))
 
     def test_get_falls_back_when_first_page_has_no_table(self):
-        pages = {'https://www.sslproxies.org': b'<html><body>Maintenance</body></html>',
+        pages = {'https://free-proxy-list.net/ssl-proxy.html': b'<html><body>Maintenance</body></html>',
                  'https://free-proxy-list.net': PROXY_LIST_PAGE}
         test = FreeProxy()
         with patch('fp.fp.requests.get') as mock_get:

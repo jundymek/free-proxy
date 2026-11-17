@@ -2,9 +2,9 @@
 
 ![Version 1.3.0](https://img.shields.io/badge/Version-1.3.0-blue.svg)
 
-## Get free working proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and use them in your script
+## Get free working proxies from <https://free-proxy-list.net> and use them in your script
 
-The FreeProxy class scrapes proxies from <https://www.sslproxies.org/>, <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>, and <https://free-proxy-list.net> and checks to make sure that it works.
+The FreeProxy class scrapes proxies from <https://free-proxy-list.net/ssl-proxy.html>, <https://free-proxy-list.net/us-proxy.html>, <https://free-proxy-list.net/uk-proxy.html> and <https://free-proxy-list.net> and checks to make sure that it works.
 You can filter proxies by country, and specify an acceptable timeout. You can also randomize the list of proxies, rather than going in the order that they are scraped in.
 
 You can use this to send requests through a custom proxy, with Selenium, or with anything else.
@@ -58,21 +58,21 @@ from fp.fp import FreeProxy
 | url        | str       | ''           | google.com    |
 | request_timeout | float > 0 | 5       | 10            |
 - **No parameters**
-  Get the first working proxy from <https://www.sslproxies.org/>. If no proxies are working, try again pulling from <https://free-proxy-list.net>
+  Get the first working proxy from <https://free-proxy-list.net/ssl-proxy.html>. If no proxies are working, try again pulling from <https://free-proxy-list.net>
 
 ```python
 proxy = FreeProxy().get()
 ```
 
 - **`country_id` parameter**
-  Get the first working proxy from a specified list of countries (from <https://www.sslproxies.org/>). If no proxies are working **check all countries** pulling from <https://free-proxy-list.net>.
+  Get the first working proxy from a specified list of countries (from <https://free-proxy-list.net/ssl-proxy.html>). If no proxies are working **check all countries** pulling from <https://free-proxy-list.net>.
 
 ```python
 proxy = FreeProxy(country_id=['US', 'BR']).get()
 ```
 
 - **`country_id` for US and GB**
-  You can set the country_id to US or GB to get a proxy from the United States or the United Kingdom respectively. Proxies will be scrapped from <https://www.us-proxy.org/> (`US`) or <https://free-proxy-list.net/uk-proxy.html> (`GB`). If there are no working proxies in the specified list **check all countries**
+  You can set the country_id to US or GB to get a proxy from the United States or the United Kingdom respectively. Proxies will be scrapped from <https://free-proxy-list.net/us-proxy.html> (`US`) or <https://free-proxy-list.net/uk-proxy.html> (`GB`). If there are no working proxies in the specified list **check all countries**
 
 ```python
 proxy = FreeProxy(country_id=['US']).get()
@@ -88,7 +88,7 @@ proxy = FreeProxy(timeout=1).get()
 ```
 
 - **`rand` parameter**
-  Shuffles the order of the proxy list from <https://www.sslproxies.org/> instead of going from newest to oldest (as listed on the website). Defaults to `rand=False`
+  Shuffles the order of the proxy list from <https://free-proxy-list.net/ssl-proxy.html> instead of going from newest to oldest (as listed on the website). Defaults to `rand=False`
 
 ```python
 proxy = FreeProxy(rand=True).get()
@@ -146,7 +146,7 @@ proxy = FreeProxy(url='http://httpbin.org/get').get()
 ```
 
 - **`request_timeout` parameter**
-  Number of seconds to wait when downloading the proxy list from the source websites (<https://www.sslproxies.org/> etc.).
+  Number of seconds to wait when downloading the proxy list from the source websites (<https://free-proxy-list.net/ssl-proxy.html> etc.).
   If the website does not respond in that time, the script raises `FreeProxyException` instead of hanging indefinitely.
   Defaults to `request_timeout=10`. Not to be confused with `timeout`, which is used for checking individual proxies.
 
@@ -195,6 +195,7 @@ proxy = await AsyncFreeProxy(country_id=['US'], max_concurrent=50).get()
 
 - Fixed proxy list parsing after the source sites changed their table layout: proxies came back as `ip:port:HTTP`, which made every check fail and `get()` always raise "There are no working proxies", and the `elite`, `anonym` and `https` filters returned nothing. Columns are now looked up by header name, and a layout without the expected columns raises `FreeProxyException` naming the missing columns instead of silently returning bad addresses (#64)
 - Fixed `AsyncFreeProxy.get()` crashing with `AttributeError` on aiohttp 3.8.x when a proxy dropped the connection during the TLS handshake. Any error while checking a single proxy now just marks that proxy as not working
+- Proxy lists are downloaded directly from free-proxy-list.net: sslproxies.org and us-proxy.org now only redirect there, which cost an extra request and would break if the old domains stopped redirecting
 - SOCKS proxies from the source lists are skipped: they cannot be used through an `http://` proxy URL
 - Deprecated the `google` parameter: the source sites no longer publish this information, so it is ignored and emits a `DeprecationWarning`. It will be removed in the next major release
 
