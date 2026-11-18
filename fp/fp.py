@@ -2,6 +2,7 @@
 
 import asyncio
 import random
+import warnings
 
 import lxml.html as lh
 import requests
@@ -17,15 +18,26 @@ except ImportError:
 
 class FreeProxy:
     '''
-    FreeProxy class scrapes proxies from <https://www.sslproxies.org/>,
-    <https://www.us-proxy.org/>, <https://free-proxy-list.net/uk-proxy.html>,
-    and <https://free-proxy-list.net> and checks if proxy is working.
+    FreeProxy class scrapes proxies from the SSL, US, UK and main lists on
+    <https://free-proxy-list.net> and checks if proxy is working.
     There is possibility to filter proxies by country and acceptable timeout.
     You can also randomize list of proxies from where script would get first
     working proxy.
     '''
 
+    # Matched by header name, not position.
+    _REQUIRED_COLUMNS = ('ip:port', 'protocol', 'code', 'anonymity', 'https')
+
+    # Points the deprecation warning at the caller's line.
+    _warning_stacklevel = 2
+
     def __init__(self, country_id=None, timeout=0.5, rand=False, anonym=False, elite=False, google=None, https=False, url='https://www.google.com', request_timeout=10):
+        if google is not None:
+            warnings.warn(
+                'The google parameter is deprecated and ignored: the proxy list '
+                'sites no longer publish this information. It will be removed '
+                'in the next major release.',
+                DeprecationWarning, stacklevel=self._warning_stacklevel)
         self.country_id = country_id
         self.timeout = timeout
         self.request_timeout = request_timeout
@@ -48,34 +60,39 @@ class FreeProxy:
         try:
             doc = lh.fromstring(content)
             tr_elements = doc.xpath('//*[@id="list"]//tr')
-            return [f'{tr_elements[i][0].text_content()}:{tr_elements[i][1].text_content()}'
-                    for i in range(1, len(tr_elements)) if self._criteria(tr_elements[i])]
+            if not tr_elements:
+                # No table at all (e.g. a maintenance page): let get() fall back.
+                return []
+            header =[cell.text_content().strip().lower() for cell in tr_elements[0]]
+            rows = [dict(zip(header, (cell.text_content().strip() for cell in tr)))
+                    for tr in tr_elements[1:] if len(tr) == len(header)]
         except Exception as e:
             raise FreeProxyException('Failed to get list of proxies') from e
+        missing = [name for name in self._REQUIRED_COLUMNS if name not in header]
+        if missing:
+            raise FreeProxyException(
+                f'Unexpected proxy list layout, missing columns: {", ".join(missing)}')
+        return [row['ip:port'] for row in rows if self._criteria(row)]
 
     def _website(self, repeat):
         if repeat:
             return "https://free-proxy-list.net"
         elif self.country_id == ['US']:
-            return 'https://www.us-proxy.org'
+            return 'https://free-proxy-list.net/us-proxy.html'
         elif self.country_id == ['GB']:
             return 'https://free-proxy-list.net/uk-proxy.html'
         else:
-            return 'https://www.sslproxies.org'
+            return 'https://free-proxy-list.net/ssl-proxy.html'
 
-    def _criteria(self, row_elements):
-        country_criteria = True if not self.country_id else row_elements[2].text_content(
-        ) in self.country_id
-        elite_criteria = True if not self.elite else 'elite' in row_elements[4].text_content(
-        )
-        anonym_criteria = True if (
-            not self.anonym) or self.elite else 'anonymous' == row_elements[4].text_content()
-        switch = {'yes': True, 'no': False}
-        google_criteria = True if self.google is None else self.google == switch.get(
-            row_elements[5].text_content())
-        https_criteria = True if self.schema == 'http' else row_elements[6].text_content(
-        ).lower() == 'yes'
-        return country_criteria and elite_criteria and anonym_criteria and google_criteria and https_criteria
+    def _criteria(self, row):
+        anonymity = row['anonymity'].lower()
+        # SOCKS proxies don't work through an http:// proxy URL.
+        protocol_criteria = row['protocol'].lower() == 'http'
+        country_criteria = not self.country_id or row['code'] in self.country_id
+        elite_criteria = not self.elite or anonymity == 'elite'
+        anonym_criteria = not self.anonym or self.elite or anonymity == 'anonymous'
+        https_criteria = self.schema == 'http' or row['https'].lower() == 'yes'
+        return protocol_criteria and country_criteria and elite_criteria and anonym_criteria and https_criteria
 
     def get(self, repeat=False):
         '''Returns a working proxy that matches the specified parameters.'''
@@ -124,6 +141,9 @@ class AsyncFreeProxy(FreeProxy):
     Proxies are checked concurrently (up to max_concurrent at a time) and the
     first working one wins; remaining checks are cancelled.
     '''
+
+    # One extra frame: our __init__ calls super().__init__().
+    _warning_stacklevel = FreeProxy._warning_stacklevel + 1
 
     def __init__(self, *args, max_concurrent=20, **kwargs):
         if aiohttp is None:
@@ -191,6 +211,8 @@ class AsyncFreeProxy(FreeProxy):
                     peername = connection.transport.get_extra_info('peername')
                     if peername and peername[0] == proxy_address.split(':')[0]:
                         return f'http://{proxy_address}'
-            except (aiohttp.ClientError, asyncio.TimeoutError, OSError):
+            except Exception:
+                # A broken proxy can trigger anything, e.g. AttributeError
+                # in aiohttp 3.8.x. CancelledError is not an Exception.
                 pass
             return None
